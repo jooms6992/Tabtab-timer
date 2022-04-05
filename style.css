@@ -1,0 +1,55 @@
+* {
+  box-sizing: border-box;
+}
+
+button {
+  cursor: pointer;
+  border: none;
+  outline: none;
+  font-family: "Libre Franklin", sans-serif;
+}
+
+body {
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background-color: #102027;
+  color: #ffffff;
+  font-family: "Libre Franklin", sans-serif;
+}
+
+/* State */
+.state {
+  width: 500px;
+  text-align: end;
+  font-size: 40px;
+}
+
+/* Screen */
+.screen {
+  background-color: #37464f;
+  width: 500px;
+  height: 300px;
+  text-align: center;
+  line-height: 300px;
+  font-size: 120px;
+  border-radius: 4px;
+}
+
+/* Buttons */
+.buttons {
+  width: 500px;
+  display: flex;
+  justify-content: space-around;
+  margin-top: 12px;
+}
+
+.buttons__button {
+  font-size: 28px;
+  width: 120px;
+  height: 60px;
+  border-radius: 8px;
+  background-color: #efefef;
+}
