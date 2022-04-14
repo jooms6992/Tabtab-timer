@@ -162,8 +162,8 @@ window.addEventListener("beforeunload", () => {
 });
 
 function getTimeLogFromLocalStorage() {
-  time1 = localStorage.getItem("studyingTime");
-  time2 = localStorage.getItem("breakingTime");
+  time1 = localStorage.getItem("studyingTime") - 1;
+  time2 = localStorage.getItem("breakingTime") - 1;
 }
 getTimeLogFromLocalStorage();
 updateTimer1();
