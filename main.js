@@ -147,3 +147,24 @@ function onScreenClick() {
 function changeStateText() {
   stateText.textContent = stateStudying ? "Breaking" : "Studying";
 }
+
+// Local storage
+// 1. declare function that saves time-log in the Local Storage
+// 2. execute function before browser get refreshed or closed
+// 3. get data from the Local Storage
+function saveTimeLogInLocalStorage(studyingTime, breakingTime) {
+  localStorage.setItem("studyingTime", studyingTime);
+  localStorage.setItem("breakingTime", breakingTime);
+}
+
+window.addEventListener("beforeunload", () => {
+  saveTimeLogInLocalStorage(time1, time2);
+});
+
+function getTimeLogFromLocalStorage() {
+  time1 = localStorage.getItem("studyingTime");
+  time2 = localStorage.getItem("breakingTime");
+}
+getTimeLogFromLocalStorage();
+updateTimer1();
+updateTimer2();
