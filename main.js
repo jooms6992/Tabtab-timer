@@ -26,6 +26,7 @@ screen.addEventListener("click", onScreenClick);
 stopBtn.addEventListener("click", () => {
   stopTimer1();
   stopTimer2();
+  stateStudying = !stateStudying;
 });
 
 // click reset button and reset timer
@@ -36,6 +37,8 @@ function onScreenClick() {
   onStudying();
   onBreaking();
   changeStateText();
+  getRealtimeSecs();
+  saveObjInLocalStorage(getElapsedTimeLogAll());
   stateStudying = !stateStudying;
 }
 
@@ -184,19 +187,58 @@ updateTimer2();
 //
 //
 // get real-time
+let secsOfToday;
+function getRealtimeSecs() {
+  let realYear = new Date().getFullYear();
+  let realMonth = new Date().getMonth();
+  let realDate = new Date().getDate();
+  let realtimeDefault = new Date(realYear, realMonth, realDate, 0, 0, 0);
+  let realtime = new Date();
 
-let realYear = new Date().getFullYear();
-let realMonth = new Date().getMonth();
-let realDate = new Date().getDate();
-let realtimeDefault = new Date(realYear, realMonth, realDate, 0, 0, 0);
-let realtime = new Date();
-console.log(realtimeDefault);
-console.log(realtime);
-let secsOfToday = (realtime.getTime() - realtimeDefault.getTime()) / 1000;
-// secsOfToday이걸 id값 마냥 전달해주면 될듯...
+  secsOfToday = (realtime.getTime() - realtimeDefault.getTime()) / 1000;
+  // secsOfToday이걸 id값 마냥 전달해주면 될듯...
+  // secsOfToday이것만 있으면 오늘 시간 알 수 있다
 
-let hmsOfToday = convertSecsToTime(secsOfToday);
-console.log(hmsOfToday.hours, hmsOfToday.mins, hmsOfToday.secs);
+  // let hmsOfToday = convertSecsToTime(secsOfToday);
+  // console.log(hmsOfToday.hours, hmsOfToday.mins, hmsOfToday.secs);
+}
 
-function saveTimeLogWithRealtime() {}
-// saveTimeLogWithRealtime(hmsOfToday.hours, hmsOfToday.mins, hmsOfToday.secs);
+// 1. 생성자 함수를 이용해 객체를 만든다
+// 2. 만들어진 객체를 배열에 넣는다
+// 3. 그 배열을 LocalStorage에 저장~❤
+let elapsedTime;
+function ElapsedTimeLog(state, realtime, elapsedTime) {
+  this.state = state;
+  this.realtime = realtime;
+  this.elapsedTime = elapsedTime;
+}
+const elapsedTimeLogAll = [];
+function getElapsedTimeLogAll() {
+  const array = new ElapsedTimeLog(stateStudying, secsOfToday, elapsedTime);
+  elapsedTimeLogAll.push(array);
+  return elapsedTimeLogAll;
+}
+function saveObjInLocalStorage(obj) {
+  getElapsedTime(obj);
+  const objString = JSON.stringify(obj);
+  window.localStorage.setItem("elapsed", objString);
+}
+// 경과된 시간값 얻기
+function getElapsedTime(obj) {
+  if (obj.length < 2) {
+    return;
+  } else {
+    const latestTime = obj[obj.length - 1].realtime;
+    const lastTime = obj[obj.length - 2].realtime;
+    obj[obj.length - 1].elapsedTime = latestTime - lastTime;
+  }
+}
+
+// isStop = true일 경우에 저장되는 값에 대해서도 생각해보자
+// stop이라면 state 둘 중 어느곳도 아니다 제3의 상태이다.
+//
+
+// Jooms!! 😆😆😆
+/* 해야할 일
+- realtime 함수로 만들어서 실시간으로 업데이트 하게끔.
+*/
