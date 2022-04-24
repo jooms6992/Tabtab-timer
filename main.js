@@ -38,7 +38,7 @@ function onScreenClick() {
   onBreaking();
   changeStateText();
   getRealtimeSecs();
-  saveObjInLocalStorage(getElapsedTimeLogAll());
+  saveElapsedInLocalStorage(getElapsedTimeLogAll());
   stateStudying = !stateStudying;
 }
 
@@ -103,6 +103,9 @@ function resetTimer() {
 
   stateStudying = false;
 
+  //
+  elapsedTimeLogAll = [];
+
   updateTimer1();
   updateTimer2();
   stopTimer1();
@@ -161,29 +164,6 @@ function displayTotalTimeRecord(state, hours, mins, secs) {
   state.textContent = `${hours}:${mins}:${secs}`;
 }
 
-// Local storage
-// 1. declare function that saves time-log in the Local Storage
-// 2. execute function before browser get refreshed or closed
-// 3. get data from the Local Storage
-function saveTimeLogInLocalStorage(studyingTime, breakingTime) {
-  localStorage.setItem("studyingTime", studyingTime);
-  localStorage.setItem("breakingTime", breakingTime);
-}
-
-window.addEventListener("beforeunload", () => {
-  saveTimeLogInLocalStorage(time1, time2);
-});
-
-function getTimeLogFromLocalStorage() {
-  // -1 because time increase when web is initialized by func updateTimer()
-  time1 = localStorage.getItem("studyingTime") - 1;
-  time2 = localStorage.getItem("breakingTime") - 1;
-}
-
-getTimeLogFromLocalStorage();
-updateTimer1();
-updateTimer2();
-
 //
 //
 // get real-time
@@ -206,19 +186,22 @@ function getRealtimeSecs() {
 // 1. 생성자 함수를 이용해 객체를 만든다
 // 2. 만들어진 객체를 배열에 넣는다
 // 3. 그 배열을 LocalStorage에 저장~❤
-let elapsedTime;
-function ElapsedTimeLog(state, realtime, elapsedTime) {
+// let elapsedTime;
+function ElapsedTimeLog(state, realtime) {
   this.state = state;
   this.realtime = realtime;
-  this.elapsedTime = elapsedTime;
+  this.elapsedTime;
 }
-const elapsedTimeLogAll = [];
+let elapsedTimeLogAll = [];
 function getElapsedTimeLogAll() {
-  const array = new ElapsedTimeLog(stateStudying, secsOfToday, elapsedTime);
+  const array = new ElapsedTimeLog(stateStudying, secsOfToday);
   elapsedTimeLogAll.push(array);
   return elapsedTimeLogAll;
 }
-function saveObjInLocalStorage(obj) {
+// 이 parameter 이름을 어떻게 해줘야할까 단순 obj말고
+// elapsedTimeLogAll을 전달해주는건데 이게 전역변수이다.
+// 전달 안하고 그냥 써도 될까??
+function saveElapsedInLocalStorage(obj) {
   getElapsedTime(obj);
   const objString = JSON.stringify(obj);
   window.localStorage.setItem("elapsed", objString);
@@ -233,6 +216,38 @@ function getElapsedTime(obj) {
     obj[obj.length - 1].elapsedTime = latestTime - lastTime;
   }
 }
+
+// Local storage
+// 1. declare function that saves time-log in the Local Storage
+// 2. execute function before browser get refreshed or closed
+// 3. get data from the Local Storage
+
+function saveLogInLocalStorage(keyname, value) {
+  window.localStorage.setItem(keyname, value);
+}
+
+window.addEventListener("beforeunload", () => {
+  saveLogInLocalStorage("studyingTime", time1);
+  saveLogInLocalStorage("breakingTime", time2);
+
+  const objString = JSON.stringify(elapsedTimeLogAll);
+  saveLogInLocalStorage("elapsed", objString);
+});
+
+function getLogFromLocalStorage() {
+  // -1 because time increase when web is initialized by func updateTimer()
+  time1 = window.localStorage.getItem("studyingTime") - 1;
+  time2 = window.localStorage.getItem("breakingTime") - 1;
+
+  const logString = window.localStorage.getItem("elapsed");
+  const logObj = JSON.parse(logString);
+  elapsedTimeLogAll = logObj;
+}
+
+getLogFromLocalStorage();
+updateTimer1();
+updateTimer2();
+// 이제 원하는 정보는 다 구했나?? 2022-04-23
 
 // isStop = true일 경우에 저장되는 값에 대해서도 생각해보자
 // stop이라면 state 둘 중 어느곳도 아니다 제3의 상태이다.
