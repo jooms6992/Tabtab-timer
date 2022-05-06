@@ -36,10 +36,11 @@ resetBtn.addEventListener("click", resetTimer);
 function onScreenClick() {
   onStudying();
   onBreaking();
-  changeStateText();
+  changeStateText(stateStudying);
   getRealtimeSecs();
   saveElapsedInLocalStorage(getElapsedTimeLogAll());
   stateStudying = !stateStudying;
+  console.log(stateStudying);
 }
 
 // When the State is studying
@@ -65,8 +66,8 @@ function onBreaking() {
 }
 
 // change text by the state on the header
-function changeStateText() {
-  stateText.textContent = stateStudying ? "Breaking" : "Studying";
+function changeStateText(state) {
+  stateText.textContent = state ? "Breaking" : "Studying";
 }
 
 // Start Timer1
@@ -105,6 +106,8 @@ function resetTimer() {
 
   //
   elapsedTimeLogAll = [];
+  // localStorage.removeItem("elapsed");
+  localStorage.clear();
 
   updateTimer1();
   updateTimer2();
@@ -207,6 +210,7 @@ function saveElapsedInLocalStorage(obj) {
   window.localStorage.setItem("elapsed", objString);
 }
 // 경과된 시간값 얻기
+// 근데 어차피 객체안의 realtime프로퍼티로 구하는데 따로 새 프로퍼티에 추가할 필요가 있나 싶구여,,
 function getElapsedTime(obj) {
   if (obj.length < 2) {
     return;
@@ -230,14 +234,23 @@ window.addEventListener("beforeunload", () => {
   saveLogInLocalStorage("studyingTime", time1);
   saveLogInLocalStorage("breakingTime", time2);
 
-  const objString = JSON.stringify(elapsedTimeLogAll);
-  saveLogInLocalStorage("elapsed", objString);
+  getRealtimeSecs();
+  saveElapsedInLocalStorage(getElapsedTimeLogAll());
+  // const objString = JSON.stringify(elapsedTimeLogAll);
+  // saveLogInLocalStorage("elapsed", objString);
 });
 
 function getLogFromLocalStorage() {
   // -1 because time increase when web is initialized by func updateTimer()
-  time1 = window.localStorage.getItem("studyingTime") - 1;
-  time2 = window.localStorage.getItem("breakingTime") - 1;
+  time1 = window.localStorage.getItem("studyingTime");
+  time2 = window.localStorage.getItem("breakingTime");
+  // time을 Date()객체에서 받은 값으로 바꾸면 이렇게 번거롭게 안해도 될까?
+  if (time1 <= 1 || time2 <= 1) {
+    return;
+  } else {
+    time1--;
+    time2--;
+  }
 
   const logString = window.localStorage.getItem("elapsed");
   const logObj = JSON.parse(logString);
@@ -245,8 +258,38 @@ function getLogFromLocalStorage() {
 }
 
 getLogFromLocalStorage();
-updateTimer1();
-updateTimer2();
+
+function getState() {
+  if (elapsedTimeLogAll == "") {
+    return;
+  }
+  stateStudying = elapsedTimeLogAll[elapsedTimeLogAll.length - 1].state;
+  console.log(stateStudying);
+}
+
+getState();
+getRealtimeSecs();
+console.log(stateStudying);
+console.log(elapsedTimeLogAll);
+changeStateText(!stateStudying);
+// 새로고침되면 default상태인데도 자동 작동이 되어버린다.
+// 일단 임시방편으로 이렇게 해놓고 다시 손보자
+if (time1 > 1 || time2 > 1) {
+  if (stateStudying) {
+    updateTimer2();
+    updateTimer1();
+    time1 +=
+      secsOfToday - elapsedTimeLogAll[elapsedTimeLogAll.length - 1].realtime;
+    startTimer1();
+  } else {
+    updateTimer1();
+    updateTimer2();
+    time2 +=
+      secsOfToday - elapsedTimeLogAll[elapsedTimeLogAll.length - 1].realtime;
+    startTimer2();
+  }
+}
+
 // 이제 원하는 정보는 다 구했나?? 2022-04-23
 
 // isStop = true일 경우에 저장되는 값에 대해서도 생각해보자
