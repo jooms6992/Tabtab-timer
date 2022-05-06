@@ -12,22 +12,105 @@ let stateStudying = false;
 
 const screen = document.querySelector(".screen");
 const screenText = document.querySelector(".screen__text");
-const stopBtn = document.querySelector(".stop-button");
+// const stopBtn = document.querySelector(".stop-button");
 const resetBtn = document.querySelector(".reset-button");
 const stateText = document.querySelector(".state__text");
 
 const timeRecordStudy = document.querySelector(".study__time");
 const timeRecordBreak = document.querySelector(".break__time");
 
+let startTime1 = 0;
+let stopTime1 = 0;
+let startTime2 = 0;
+let stopTime2 = 0;
+let timerId;
+
+// let min;
+// let sec;
+// let milisec;
+
+// function update() {
+//   if (!startTime) {
+//     startTime = Date.now(); // 처음 시작할 때
+//   } else {
+//     startTime += Date.now() - stopTime; // 재시작 할 때
+//   }
+
+//   let nowTime = newDate(Date.now() - startTime);
+
+//   min = addZero(nowTime.getMinutes());
+//   sec = addZero(nowTime.getSeconds());
+//   milisec = addZero(Math.floor(nowTime.getMilliseconds() / 10));
+// }
+
+// timerId = setInterval();
+
+// function stop() {
+//   if (timerId) {
+//     clearInterval(timerId);
+//     stopTime = Date.now(); // STOP시점의 시간 저장
+//   }
+// }
+
+function addZero(num) {
+  return num < 10 ? "0" + num : "" + num;
+}
+
+/* class Timer {
+  constructor() {
+    this.time;
+    this.timerId;
+    this.isRunning;
+    this.state;
+  }
+  changeState()
+  update(){
+    let hours = Math.floor(this.time / 3600);
+    let mins = Math.floor((this.time % 3600) / 60);
+    let secs = Math.floor(this.time % 60);
+
+    hours = hours < 10 ? `0${hours}` : hours;
+    mins = mins < 10 ? `0${mins}` : mins;
+    secs = secs < 10 ? `0${secs}` : secs;
+
+    displayTimeText(hours, mins, secs);
+    displayTotalTimeRecord(timeRecordStudy, hours, mins, secs);
+
+    this.time++;
+  }
+  start(){
+    this.isRunning = true;
+    this.update();
+    this.timerId = setInterval(this.update, 1000);
+  }
+  stop(){
+    this.isRunning = false;
+    clearInterval(this.timerId);
+  }
+  reset(){
+    this.time = 0;
+    this.isRunning = false;
+    this.state = false;
+  
+    //
+    elapsedTimeLogAll = [];
+    localStorage.clear();
+  
+    this.update();
+    this.stop();
+  }
+
+} */
+
 // click screen and start timer
 screen.addEventListener("click", onScreenClick);
 
-// click stop button and stop timer
-stopBtn.addEventListener("click", () => {
-  stopTimer1();
-  stopTimer2();
-  stateStudying = !stateStudying;
-});
+// // click stop button and stop timer
+// stopBtn.addEventListener("click", () => {
+//   stopTimer1();
+//   stopTimer2();
+//   stateStudying = !stateStudying;
+// });
 
 // click reset button and reset timer
 resetBtn.addEventListener("click", resetTimer);
@@ -72,24 +155,36 @@ function changeStateText(state) {
 
 // Start Timer1
 function startTimer1() {
+  if (!startTime1) {
+    startTime1 = Date.now(); // 처음 시작할 때
+  } else {
+    startTime1 += Date.now() - stopTime1; // 재시작 할 때
+  }
   timerRunning1 = true;
   updateTimer1();
   timerId1 = setInterval(updateTimer1, 1000);
 }
 // Stop Timer1
 function stopTimer1() {
+  stopTime1 = Date.now(); // STOP시점의 시간 저장
   timerRunning1 = false;
   clearInterval(timerId1);
 }
 
 // Start Timer2
 function startTimer2() {
+  if (!startTime2) {
+    startTime2 = Date.now(); // 처음 시작할 때
+  } else {
+    startTime2 += Date.now() - stopTime2; // 재시작 할 때
+  }
   timerRunning2 = true;
   updateTimer2();
   timerId2 = setInterval(updateTimer2, 1000);
 }
 // Stop Timer2
 function stopTimer2() {
+  stopTime2 = Date.now(); // STOP시점의 시간 저장
   timerRunning2 = false;
   clearInterval(timerId2);
 }
@@ -117,44 +212,26 @@ function resetTimer() {
 
 // Update Timer1
 function updateTimer1() {
-  let hms = convertSecsToTime(time1);
+  let nowTime = new Date(0, 0, 0, 0, 0, 0, Date.now() - startTime1);
 
-  let hours = hms.hours;
-  let mins = hms.mins;
-  let secs = hms.secs;
+  let secs = addZero(nowTime.getSeconds());
+  let mins = addZero(nowTime.getMinutes());
+  let hours = addZero(nowTime.getHours());
 
   displayTimeText(hours, mins, secs);
   displayTotalTimeRecord(timeRecordStudy, hours, mins, secs);
-
-  time1++;
 }
 
 // Update Timer2
 function updateTimer2() {
-  let hms = convertSecsToTime(time2);
+  let nowTime = new Date(0, 0, 0, 0, 0, 0, Date.now() - startTime2);
 
-  let hours = hms.hours;
-  let mins = hms.mins;
-  let secs = hms.secs;
+  let secs = addZero(nowTime.getSeconds());
+  let mins = addZero(nowTime.getMinutes());
+  let hours = addZero(nowTime.getHours());
 
   displayTimeText(hours, mins, secs);
   displayTotalTimeRecord(timeRecordBreak, hours, mins, secs);
-
-  time2++;
-}
-
-// convert time to hours:minutes:seconds
-function convertSecsToTime(time) {
-  let hours = Math.floor(time / 3600);
-  let mins = Math.floor((time % 3600) / 60);
-  let secs = Math.floor(time % 60);
-
-  // 0이 붙으면 문자열로 반환이된다. 일단은 문제는 없는데,, 메모해둠
-  hours = hours < 10 ? `0${hours}` : hours;
-  mins = mins < 10 ? `0${mins}` : mins;
-  secs = secs < 10 ? `0${secs}` : secs;
-
-  return { hours, mins, secs };
 }
 
 // show time text on screen
