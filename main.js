@@ -21,36 +21,13 @@ const timeRecordBreak = document.querySelector(".break__time");
 
 let startTime1 = 0;
 let stopTime1 = 0;
+let nowTime1;
+
 let startTime2 = 0;
 let stopTime2 = 0;
+let nowTime2;
+
 let timerId;
-
-// let min;
-// let sec;
-// let milisec;
-
-// function update() {
-//   if (!startTime) {
-//     startTime = Date.now(); // 처음 시작할 때
-//   } else {
-//     startTime += Date.now() - stopTime; // 재시작 할 때
-//   }
-
-//   let nowTime = newDate(Date.now() - startTime);
-
-//   min = addZero(nowTime.getMinutes());
-//   sec = addZero(nowTime.getSeconds());
-//   milisec = addZero(Math.floor(nowTime.getMilliseconds() / 10));
-// }
-
-// timerId = setInterval();
-
-// function stop() {
-//   if (timerId) {
-//     clearInterval(timerId);
-//     stopTime = Date.now(); // STOP시점의 시간 저장
-//   }
-// }
 
 function addZero(num) {
   return num < 10 ? "0" + num : "" + num;
@@ -161,7 +138,7 @@ function startTimer1() {
     startTime1 += Date.now() - stopTime1; // 재시작 할 때
   }
   timerRunning1 = true;
-  updateTimer1();
+  // updateTimer1();
   timerId1 = setInterval(updateTimer1, 1000);
 }
 // Stop Timer1
@@ -179,7 +156,7 @@ function startTimer2() {
     startTime2 += Date.now() - stopTime2; // 재시작 할 때
   }
   timerRunning2 = true;
-  updateTimer2();
+  // updateTimer2();
   timerId2 = setInterval(updateTimer2, 1000);
 }
 // Stop Timer2
@@ -191,10 +168,15 @@ function stopTimer2() {
 
 // Reset Timer
 function resetTimer() {
-  time1 = 0;
+  startTime1 = 0;
+  stopTime1 = 0;
+  nowTime1 = new Date(0);
+  console.log(nowTime1);
   timerRunning1 = false;
 
-  time2 = 0;
+  startTime2 = 0;
+  stopTime2 = 0;
+  nowTime2 = new Date(0);
   timerRunning2 = false;
 
   stateStudying = false;
@@ -204,31 +186,39 @@ function resetTimer() {
   // localStorage.removeItem("elapsed");
   localStorage.clear();
 
-  updateTimer1();
-  updateTimer2();
-  stopTimer1();
-  stopTimer2();
+  updateTimer1(nowTime1);
+  updateTimer2(nowTime2);
+  clearInterval(timerId1);
+  clearInterval(timerId2);
 }
 
 // Update Timer1
-function updateTimer1() {
-  let nowTime = new Date(0, 0, 0, 0, 0, 0, Date.now() - startTime1);
+function updateTimer1(time) {
+  if (time) {
+    nowTime1 = time;
+  } else {
+    nowTime1 = new Date(Date.now() - startTime1);
+  }
 
-  let secs = addZero(nowTime.getSeconds());
-  let mins = addZero(nowTime.getMinutes());
-  let hours = addZero(nowTime.getHours());
+  let secs = addZero(nowTime1.getSeconds());
+  let mins = addZero(nowTime1.getMinutes());
+  let hours = addZero(Math.floor(mins / 60));
 
   displayTimeText(hours, mins, secs);
   displayTotalTimeRecord(timeRecordStudy, hours, mins, secs);
 }
 
 // Update Timer2
-function updateTimer2() {
-  let nowTime = new Date(0, 0, 0, 0, 0, 0, Date.now() - startTime2);
+function updateTimer2(time) {
+  if (time) {
+    nowTime2 = time;
+  } else {
+    nowTime2 = new Date(Date.now() - startTime2);
+  }
 
-  let secs = addZero(nowTime.getSeconds());
-  let mins = addZero(nowTime.getMinutes());
-  let hours = addZero(nowTime.getHours());
+  let secs = addZero(nowTime2.getSeconds());
+  let mins = addZero(nowTime2.getMinutes());
+  let hours = addZero(Math.floor(mins / 60));
 
   displayTimeText(hours, mins, secs);
   displayTotalTimeRecord(timeRecordBreak, hours, mins, secs);
@@ -247,7 +237,7 @@ function displayTotalTimeRecord(state, hours, mins, secs) {
 //
 //
 // get real-time
-let secsOfToday;
+let msecsOfToday;
 function getRealtimeSecs() {
   let realYear = new Date().getFullYear();
   let realMonth = new Date().getMonth();
@@ -255,11 +245,11 @@ function getRealtimeSecs() {
   let realtimeDefault = new Date(realYear, realMonth, realDate, 0, 0, 0);
   let realtime = new Date();
 
-  secsOfToday = (realtime.getTime() - realtimeDefault.getTime()) / 1000;
+  msecsOfToday = realtime.getTime() - realtimeDefault.getTime();
   // secsOfToday이걸 id값 마냥 전달해주면 될듯...
   // secsOfToday이것만 있으면 오늘 시간 알 수 있다
 
-  // let hmsOfToday = convertSecsToTime(secsOfToday);
+  // let hmsOfToday = convertSecsToTime(msecsOfToday);
   // console.log(hmsOfToday.hours, hmsOfToday.mins, hmsOfToday.secs);
 }
 
@@ -274,7 +264,7 @@ function ElapsedTimeLog(state, realtime) {
 }
 let elapsedTimeLogAll = [];
 function getElapsedTimeLogAll() {
-  const array = new ElapsedTimeLog(stateStudying, secsOfToday);
+  const array = new ElapsedTimeLog(stateStudying, msecsOfToday);
   elapsedTimeLogAll.push(array);
   return elapsedTimeLogAll;
 }
@@ -308,8 +298,8 @@ function saveLogInLocalStorage(keyname, value) {
 }
 
 window.addEventListener("beforeunload", () => {
-  saveLogInLocalStorage("studyingTime", time1);
-  saveLogInLocalStorage("breakingTime", time2);
+  saveLogInLocalStorage("studyingTime", nowTime1);
+  saveLogInLocalStorage("breakingTime", nowTime2);
 
   getRealtimeSecs();
   saveElapsedInLocalStorage(getElapsedTimeLogAll());
@@ -318,16 +308,11 @@ window.addEventListener("beforeunload", () => {
 });
 
 function getLogFromLocalStorage() {
-  // -1 because time increase when web is initialized by func updateTimer()
-  time1 = window.localStorage.getItem("studyingTime");
-  time2 = window.localStorage.getItem("breakingTime");
-  // time을 Date()객체에서 받은 값으로 바꾸면 이렇게 번거롭게 안해도 될까?
-  if (time1 <= 1 || time2 <= 1) {
-    return;
-  } else {
-    time1--;
-    time2--;
-  }
+  const nowTime1String = window.localStorage.getItem("studyingTime");
+  const nowTime2String = window.localStorage.getItem("breakingTime");
+
+  nowTime1 = new Date(nowTime1String.split(" ").slice(0, 5));
+  nowTime2 = new Date(nowTime2String.split(" ").slice(0, 5));
 
   const logString = window.localStorage.getItem("elapsed");
   const logObj = JSON.parse(logString);
@@ -341,29 +326,41 @@ function getState() {
     return;
   }
   stateStudying = elapsedTimeLogAll[elapsedTimeLogAll.length - 1].state;
-  console.log(stateStudying);
 }
 
 getState();
 getRealtimeSecs();
-console.log(stateStudying);
-console.log(elapsedTimeLogAll);
 changeStateText(!stateStudying);
 // 새로고침되면 default상태인데도 자동 작동이 되어버린다.
 // 일단 임시방편으로 이렇게 해놓고 다시 손보자
-if (time1 > 1 || time2 > 1) {
+
+// 여기부터 다시~~
+console.log(nowTime2);
+if (nowTime1.getSeconds() > 0 || nowTime2.getSeconds() > 0) {
+  console.log("hihihihihihi");
+  let elapsedMseconds1 =
+    nowTime1.getTime() +
+    msecsOfToday -
+    elapsedTimeLogAll[elapsedTimeLogAll.length - 1].realtime;
+  let elapsedMseconds2 =
+    nowTime2.getTime() +
+    msecsOfToday -
+    elapsedTimeLogAll[elapsedTimeLogAll.length - 1].realtime;
+
   if (stateStudying) {
-    updateTimer2();
-    updateTimer1();
-    time1 +=
-      secsOfToday - elapsedTimeLogAll[elapsedTimeLogAll.length - 1].realtime;
+    nowTime1 = new Date(elapsedMseconds1);
+    updateTimer2(nowTime2);
+    updateTimer1(nowTime1);
+
     startTimer1();
   } else {
-    updateTimer1();
-    updateTimer2();
-    time2 +=
-      secsOfToday - elapsedTimeLogAll[elapsedTimeLogAll.length - 1].realtime;
+    nowTime2 = new Date(elapsedMseconds2);
+    updateTimer1(nowTime1);
+    updateTimer2(nowTime2);
+
     startTimer2();
+    // nowTime2 +=
+    //   msecsOfToday - elapsedTimeLogAll[elapsedTimeLogAll.length - 1].realtime;
   }
 }
 
@@ -375,5 +372,5 @@ if (time1 > 1 || time2 > 1) {
 
 // Jooms!! 😆😆😆
 /* 해야할 일
-- realtime 함수로 만들어서 실시간으로 업데이트 하게끔.
+- time1,2가 들어간 곳 리팩토링한 것에 맞게 고치기
 */
