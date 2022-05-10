@@ -70,7 +70,7 @@ function addZero(num) {
     this.state = false;
   
     //
-    elapsedTimeLogAll = [];
+    pastTimeLogAll = [];
     localStorage.clear();
   
     this.update();
@@ -98,7 +98,7 @@ function onScreenClick() {
   onBreaking();
   changeStateText(stateStudying);
   getRealtimeSecs();
-  saveElapsedInLocalStorage(getElapsedTimeLogAll());
+  savePastTimeLogAllInLocalStorage(getPastTimeLogAll());
   stateStudying = !stateStudying;
   console.log(stateStudying);
 }
@@ -133,12 +133,12 @@ function changeStateText(state) {
 // Start Timer1
 function startTimer1() {
   if (!startTime1) {
-    startTime1 = Date.now(); // 처음 시작할 때
+    startTime1 += Date.now(); // 처음 시작할 때
   } else {
     startTime1 += Date.now() - stopTime1; // 재시작 할 때
   }
   timerRunning1 = true;
-  // updateTimer1();
+  updateTimer1(nowTime1);
   timerId1 = setInterval(updateTimer1, 1000);
 }
 // Stop Timer1
@@ -151,12 +151,12 @@ function stopTimer1() {
 // Start Timer2
 function startTimer2() {
   if (!startTime2) {
-    startTime2 = Date.now(); // 처음 시작할 때
+    startTime2 += Date.now(); // 처음 시작할 때
   } else {
     startTime2 += Date.now() - stopTime2; // 재시작 할 때
   }
   timerRunning2 = true;
-  // updateTimer2();
+  updateTimer2(nowTime2);
   timerId2 = setInterval(updateTimer2, 1000);
 }
 // Stop Timer2
@@ -171,7 +171,6 @@ function resetTimer() {
   startTime1 = 0;
   stopTime1 = 0;
   nowTime1 = new Date(0);
-  console.log(nowTime1);
   timerRunning1 = false;
 
   startTime2 = 0;
@@ -182,8 +181,8 @@ function resetTimer() {
   stateStudying = false;
 
   //
-  elapsedTimeLogAll = [];
-  // localStorage.removeItem("elapsed");
+  pastTimeLogAll = [];
+  // localStorage.removeItem("pastTimeLog");
   localStorage.clear();
 
   updateTimer1(nowTime1);
@@ -202,7 +201,7 @@ function updateTimer1(time) {
 
   let secs = addZero(nowTime1.getSeconds());
   let mins = addZero(nowTime1.getMinutes());
-  let hours = addZero(Math.floor(mins / 60));
+  let hours = addZero(nowTime1.getHours() - 9);
 
   displayTimeText(hours, mins, secs);
   displayTotalTimeRecord(timeRecordStudy, hours, mins, secs);
@@ -218,7 +217,7 @@ function updateTimer2(time) {
 
   let secs = addZero(nowTime2.getSeconds());
   let mins = addZero(nowTime2.getMinutes());
-  let hours = addZero(Math.floor(mins / 60));
+  let hours = addZero(nowTime2.getHours() - 9);
 
   displayTimeText(hours, mins, secs);
   displayTotalTimeRecord(timeRecordBreak, hours, mins, secs);
@@ -230,8 +229,8 @@ function displayTimeText(hours, mins, secs) {
 }
 
 // show time record log on footer
-function displayTotalTimeRecord(state, hours, mins, secs) {
-  state.textContent = `${hours}:${mins}:${secs}`;
+function displayTotalTimeRecord(timeRecordState, hours, mins, secs) {
+  timeRecordState.textContent = `${hours}:${mins}:${secs}`;
 }
 
 //
@@ -246,37 +245,33 @@ function getRealtimeSecs() {
   let realtime = new Date();
 
   msecsOfToday = realtime.getTime() - realtimeDefault.getTime();
-  // secsOfToday이걸 id값 마냥 전달해주면 될듯...
   // secsOfToday이것만 있으면 오늘 시간 알 수 있다
-
-  // let hmsOfToday = convertSecsToTime(msecsOfToday);
-  // console.log(hmsOfToday.hours, hmsOfToday.mins, hmsOfToday.secs);
 }
 
 // 1. 생성자 함수를 이용해 객체를 만든다
 // 2. 만들어진 객체를 배열에 넣는다
 // 3. 그 배열을 LocalStorage에 저장~❤
-// let elapsedTime;
-function ElapsedTimeLog(state, realtime) {
+function PastTimeLog(state, realtime) {
   this.state = state;
   this.realtime = realtime;
   this.elapsedTime;
 }
-let elapsedTimeLogAll = [];
-function getElapsedTimeLogAll() {
-  const array = new ElapsedTimeLog(stateStudying, msecsOfToday);
-  elapsedTimeLogAll.push(array);
-  return elapsedTimeLogAll;
+
+let pastTimeLogAll = [];
+function getPastTimeLogAll() {
+  const obj = new PastTimeLog(stateStudying, msecsOfToday);
+  pastTimeLogAll.push(obj);
+  return pastTimeLogAll;
 }
 // 이 parameter 이름을 어떻게 해줘야할까 단순 obj말고
-// elapsedTimeLogAll을 전달해주는건데 이게 전역변수이다.
+// pastTimeLogAll을 전달해주는건데 이게 전역변수이다.
 // 전달 안하고 그냥 써도 될까??
-function saveElapsedInLocalStorage(obj) {
+function savePastTimeLogAllInLocalStorage(obj) {
   getElapsedTime(obj);
   const objString = JSON.stringify(obj);
-  window.localStorage.setItem("elapsed", objString);
+  window.localStorage.setItem("pastTimeLog", objString);
 }
-// 경과된 시간값 얻기
+// 경과된 시간값 얻기 // 나중에 그래프로 표현할 때 필요한 값이다. 사이 시간 값.
 // 근데 어차피 객체안의 realtime프로퍼티로 구하는데 따로 새 프로퍼티에 추가할 필요가 있나 싶구여,,
 function getElapsedTime(obj) {
   if (obj.length < 2) {
@@ -298,69 +293,68 @@ function saveLogInLocalStorage(keyname, value) {
 }
 
 window.addEventListener("beforeunload", () => {
-  saveLogInLocalStorage("studyingTime", nowTime1);
-  saveLogInLocalStorage("breakingTime", nowTime2);
+  saveLogInLocalStorage("studyingTime", nowTime1.getTime());
+  saveLogInLocalStorage("breakingTime", nowTime2.getTime());
 
   getRealtimeSecs();
-  saveElapsedInLocalStorage(getElapsedTimeLogAll());
-  // const objString = JSON.stringify(elapsedTimeLogAll);
-  // saveLogInLocalStorage("elapsed", objString);
+  savePastTimeLogAllInLocalStorage(getPastTimeLogAll());
+  // const objString = JSON.stringify(pastTimeLogAll);
+  // saveLogInLocalStorage("pastTimeLog", objString);
 });
 
 function getLogFromLocalStorage() {
   const nowTime1String = window.localStorage.getItem("studyingTime");
   const nowTime2String = window.localStorage.getItem("breakingTime");
 
-  nowTime1 = new Date(nowTime1String.split(" ").slice(0, 5));
-  nowTime2 = new Date(nowTime2String.split(" ").slice(0, 5));
+  nowTime1 = new Date(+nowTime1String);
+  nowTime2 = new Date(+nowTime2String);
 
-  const logString = window.localStorage.getItem("elapsed");
+  const logString = window.localStorage.getItem("pastTimeLog");
   const logObj = JSON.parse(logString);
-  elapsedTimeLogAll = logObj;
+  pastTimeLogAll = logObj;
 }
 
 getLogFromLocalStorage();
 
 function getState() {
-  if (elapsedTimeLogAll == "") {
+  if (pastTimeLogAll == "") {
     return;
   }
-  stateStudying = elapsedTimeLogAll[elapsedTimeLogAll.length - 1].state;
+  stateStudying = pastTimeLogAll[pastTimeLogAll.length - 1].state;
 }
 
 getState();
 getRealtimeSecs();
 changeStateText(!stateStudying);
 // 새로고침되면 default상태인데도 자동 작동이 되어버린다.
-// 일단 임시방편으로 이렇게 해놓고 다시 손보자
-
-// 여기부터 다시~~
-console.log(nowTime2);
+// 일단 임시방편으로 조건을 이렇게 해놓고 다시 손보자
 if (nowTime1.getSeconds() > 0 || nowTime2.getSeconds() > 0) {
-  console.log("hihihihihihi");
-  let elapsedMseconds1 =
-    nowTime1.getTime() +
-    msecsOfToday -
-    elapsedTimeLogAll[elapsedTimeLogAll.length - 1].realtime;
-  let elapsedMseconds2 =
-    nowTime2.getTime() +
-    msecsOfToday -
-    elapsedTimeLogAll[elapsedTimeLogAll.length - 1].realtime;
-
   if (stateStudying) {
+    let elapsedMseconds1 =
+      nowTime1.getTime() +
+      msecsOfToday -
+      pastTimeLogAll[pastTimeLogAll.length - 1].realtime;
+
     nowTime1 = new Date(elapsedMseconds1);
     updateTimer2(nowTime2);
     updateTimer1(nowTime1);
 
+    startTime1 = -elapsedMseconds1;
+    startTime2 = -nowTime2.getTime();
     startTimer1();
   } else {
+    let elapsedMseconds2 =
+      nowTime2.getTime() +
+      msecsOfToday -
+      pastTimeLogAll[pastTimeLogAll.length - 1].realtime;
+
     nowTime2 = new Date(elapsedMseconds2);
     updateTimer1(nowTime1);
     updateTimer2(nowTime2);
 
+    startTime2 = -elapsedMseconds2;
+    startTime1 = -nowTime1.getTime();
     startTimer2();
-    // nowTime2 +=
-    //   msecsOfToday - elapsedTimeLogAll[elapsedTimeLogAll.length - 1].realtime;
   }
 }
 
