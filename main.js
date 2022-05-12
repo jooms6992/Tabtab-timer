@@ -1,226 +1,76 @@
 "use strict";
 
-let timerId1;
-let time1 = 0;
-let timerRunning1 = false;
+let stateFocus = false;
 
-let timerId2;
-let time2 = 0;
-let timerRunning2 = false;
-
-let stateStudying = false;
-
+const stateText = document.querySelector(".state__text");
 const screen = document.querySelector(".screen");
 const screenText = document.querySelector(".screen__text");
-// const stopBtn = document.querySelector(".stop-button");
 const resetBtn = document.querySelector(".reset-button");
-const stateText = document.querySelector(".state__text");
 
 const timeRecordStudy = document.querySelector(".study__time");
 const timeRecordBreak = document.querySelector(".break__time");
 
-let startTime1 = 0;
-let stopTime1 = 0;
-let nowTime1;
-
-let startTime2 = 0;
-let stopTime2 = 0;
-let nowTime2;
-
-let timerId;
-
-function addZero(num) {
-  return num < 10 ? "0" + num : "" + num;
-}
-
-/* class Timer {
-  constructor() {
-    this.time;
+class Timer {
+  constructor(timeRecordState) {
+    this.startTime = 0;
+    this.stopTime = 0;
+    this.nowTime;
     this.timerId;
     this.isRunning;
-    this.state;
+    this.timeRecordState = timeRecordState;
   }
-  changeState()
-  update(){
-    let hours = Math.floor(this.time / 3600);
-    let mins = Math.floor((this.time % 3600) / 60);
-    let secs = Math.floor(this.time % 60);
 
-    hours = hours < 10 ? `0${hours}` : hours;
-    mins = mins < 10 ? `0${mins}` : mins;
-    secs = secs < 10 ? `0${secs}` : secs;
+  update = (time) => {
+    if (time) {
+      this.nowTime = time;
+    } else {
+      this.nowTime = new Date(Date.now() - this.startTime);
+    }
+
+    let secs = addZero(this.nowTime.getSeconds());
+    let mins = addZero(this.nowTime.getMinutes());
+    let hours = addZero(this.nowTime.getHours() - 9);
 
     displayTimeText(hours, mins, secs);
-    displayTotalTimeRecord(timeRecordStudy, hours, mins, secs);
+    displayTotalTimeRecord(this.timeRecordState, hours, mins, secs);
+  };
 
-    this.time++;
-  }
-  start(){
+  start() {
+    if (!this.startTime) {
+      this.startTime += Date.now(); // 처음 시작할 때
+    } else {
+      this.startTime += Date.now() - this.stopTime; // 재시작 할 때
+    }
     this.isRunning = true;
-    this.update();
+    this.update(this.nowTime);
     this.timerId = setInterval(this.update, 1000);
   }
-  stop(){
+
+  stop() {
+    this.stopTime = Date.now(); // STOP시점의 시간 저장
     this.isRunning = false;
     clearInterval(this.timerId);
   }
-  reset(){
-    this.time = 0;
+
+  reset() {
+    this.startTime = 0;
+    this.stopTime = 0;
+    this.nowTime = new Date(0);
     this.isRunning = false;
-    this.state = false;
-  
-    //
+
+    stateFocus = false;
+
     pastTimeLogAll = [];
     localStorage.clear();
-  
-    this.update();
-    this.stop();
-  }
 
-} */
-
-// click screen and start timer
-screen.addEventListener("click", onScreenClick);
-
-// // click stop button and stop timer
-// stopBtn.addEventListener("click", () => {
-//   stopTimer1();
-//   stopTimer2();
-//   stateStudying = !stateStudying;
-// });
-
-// click reset button and reset timer
-resetBtn.addEventListener("click", resetTimer);
-
-// When Click Screen
-function onScreenClick() {
-  onStudying();
-  onBreaking();
-  changeStateText(stateStudying);
-  getRealtimeSecs();
-  savePastTimeLogAllInLocalStorage(getPastTimeLogAll());
-  stateStudying = !stateStudying;
-  console.log(stateStudying);
-}
-
-// When the State is studying
-function onStudying() {
-  if (stateStudying) {
-    stopTimer1();
-    console.log("stop study timer");
-  } else {
-    startTimer1();
-    console.log("start study timer");
+    this.update(this.nowTime);
+    clearInterval(this.timerId);
   }
 }
 
-// When the State is breaktime
-function onBreaking() {
-  if (stateStudying) {
-    startTimer2();
-    console.log("start break timer");
-  } else {
-    stopTimer2();
-    console.log("stop break timer");
-  }
-}
-
-// change text by the state on the header
-function changeStateText(state) {
-  stateText.textContent = state ? "Breaking" : "Studying";
-}
-
-// Start Timer1
-function startTimer1() {
-  if (!startTime1) {
-    startTime1 += Date.now(); // 처음 시작할 때
-  } else {
-    startTime1 += Date.now() - stopTime1; // 재시작 할 때
-  }
-  timerRunning1 = true;
-  updateTimer1(nowTime1);
-  timerId1 = setInterval(updateTimer1, 1000);
-}
-// Stop Timer1
-function stopTimer1() {
-  stopTime1 = Date.now(); // STOP시점의 시간 저장
-  timerRunning1 = false;
-  clearInterval(timerId1);
-}
-
-// Start Timer2
-function startTimer2() {
-  if (!startTime2) {
-    startTime2 += Date.now(); // 처음 시작할 때
-  } else {
-    startTime2 += Date.now() - stopTime2; // 재시작 할 때
-  }
-  timerRunning2 = true;
-  updateTimer2(nowTime2);
-  timerId2 = setInterval(updateTimer2, 1000);
-}
-// Stop Timer2
-function stopTimer2() {
-  stopTime2 = Date.now(); // STOP시점의 시간 저장
-  timerRunning2 = false;
-  clearInterval(timerId2);
-}
-
-// Reset Timer
-function resetTimer() {
-  startTime1 = 0;
-  stopTime1 = 0;
-  nowTime1 = new Date(0);
-  timerRunning1 = false;
-
-  startTime2 = 0;
-  stopTime2 = 0;
-  nowTime2 = new Date(0);
-  timerRunning2 = false;
-
-  stateStudying = false;
-
-  //
-  pastTimeLogAll = [];
-  // localStorage.removeItem("pastTimeLog");
-  localStorage.clear();
-
-  updateTimer1(nowTime1);
-  updateTimer2(nowTime2);
-  clearInterval(timerId1);
-  clearInterval(timerId2);
-}
-
-// Update Timer1
-function updateTimer1(time) {
-  if (time) {
-    nowTime1 = time;
-  } else {
-    nowTime1 = new Date(Date.now() - startTime1);
-  }
-
-  let secs = addZero(nowTime1.getSeconds());
-  let mins = addZero(nowTime1.getMinutes());
-  let hours = addZero(nowTime1.getHours() - 9);
-
-  displayTimeText(hours, mins, secs);
-  displayTotalTimeRecord(timeRecordStudy, hours, mins, secs);
-}
-
-// Update Timer2
-function updateTimer2(time) {
-  if (time) {
-    nowTime2 = time;
-  } else {
-    nowTime2 = new Date(Date.now() - startTime2);
-  }
-
-  let secs = addZero(nowTime2.getSeconds());
-  let mins = addZero(nowTime2.getMinutes());
-  let hours = addZero(nowTime2.getHours() - 9);
-
-  displayTimeText(hours, mins, secs);
-  displayTotalTimeRecord(timeRecordBreak, hours, mins, secs);
+// add zero to single digit number of time text
+function addZero(num) {
+  return num < 10 ? "0" + num : "" + num;
 }
 
 // show time text on screen
@@ -233,10 +83,80 @@ function displayTotalTimeRecord(timeRecordState, hours, mins, secs) {
   timeRecordState.textContent = `${hours}:${mins}:${secs}`;
 }
 
+const focusTimer = new Timer(timeRecordStudy);
+const restTimer = new Timer(timeRecordBreak);
+
+// click screen and start timer
+screen.addEventListener("click", onScreenClick);
+
+// click reset button and reset timer
+resetBtn.addEventListener("click", () => {
+  focusTimer.reset();
+  restTimer.reset();
+});
+
+// When Click Screen
+function onScreenClick() {
+  onStudying();
+  onBreaking();
+  changeStateText(stateFocus);
+  getRealtimeSecs();
+  savePastTimeLogAllInLocalStorage(collectPastTimeLogAll());
+  stateFocus = !stateFocus;
+  console.log(stateFocus);
+}
+
+// When the State is studying
+function onStudying() {
+  if (stateFocus) {
+    focusTimer.stop();
+    console.log("stop study timer");
+  } else {
+    focusTimer.start();
+    console.log("start study timer");
+  }
+}
+
+// When the State is breaktime
+function onBreaking() {
+  if (stateFocus) {
+    restTimer.start();
+    console.log("start break timer");
+  } else {
+    restTimer.stop();
+    console.log("stop break timer");
+  }
+}
+
+// change text by the state on the header
+function changeStateText(state) {
+  stateText.textContent = state ? "Breaking" : "Studying";
+}
+
 //
-//
-// get real-time
-let msecsOfToday;
+//로컬스토리지 사용해서 time log 저장 및 활용
+let pastTimeLogAll = [];
+
+window.addEventListener("beforeunload", () => {
+  saveLogInLocalStorage("studyingTime", focusTimer.nowTime.getTime());
+  saveLogInLocalStorage("breakingTime", restTimer.nowTime.getTime());
+
+  savePastTimeLogAllInLocalStorage(collectPastTimeLogAll());
+});
+
+getLogFromLocalStorage();
+getState();
+changeStateText(!stateFocus);
+// 새로고침되면 default상태인데도 자동 작동되는 것 방지
+if (focusTimer.nowTime.getSeconds() > 0 || restTimer.nowTime.getSeconds() > 0) {
+  if (stateFocus) {
+    updateByTimeLogWhenLoad(focusTimer, restTimer);
+  } else {
+    updateByTimeLogWhenLoad(restTimer, focusTimer);
+  }
+}
+
+// secsOfToday으로 오늘 현재 시간을 알 수 있다
 function getRealtimeSecs() {
   let realYear = new Date().getFullYear();
   let realMonth = new Date().getMonth();
@@ -244,8 +164,8 @@ function getRealtimeSecs() {
   let realtimeDefault = new Date(realYear, realMonth, realDate, 0, 0, 0);
   let realtime = new Date();
 
-  msecsOfToday = realtime.getTime() - realtimeDefault.getTime();
-  // secsOfToday이것만 있으면 오늘 시간 알 수 있다
+  let msecsOfToday = realtime.getTime() - realtimeDefault.getTime();
+  return msecsOfToday;
 }
 
 // 1. 생성자 함수를 이용해 객체를 만든다
@@ -257,9 +177,8 @@ function PastTimeLog(state, realtime) {
   this.elapsedTime;
 }
 
-let pastTimeLogAll = [];
-function getPastTimeLogAll() {
-  const obj = new PastTimeLog(stateStudying, msecsOfToday);
+function collectPastTimeLogAll() {
+  const obj = new PastTimeLog(stateFocus, getRealtimeSecs());
   pastTimeLogAll.push(obj);
   return pastTimeLogAll;
 }
@@ -292,79 +211,48 @@ function saveLogInLocalStorage(keyname, value) {
   window.localStorage.setItem(keyname, value);
 }
 
-window.addEventListener("beforeunload", () => {
-  saveLogInLocalStorage("studyingTime", nowTime1.getTime());
-  saveLogInLocalStorage("breakingTime", nowTime2.getTime());
-
-  getRealtimeSecs();
-  savePastTimeLogAllInLocalStorage(getPastTimeLogAll());
-  // const objString = JSON.stringify(pastTimeLogAll);
-  // saveLogInLocalStorage("pastTimeLog", objString);
-});
-
 function getLogFromLocalStorage() {
   const nowTime1String = window.localStorage.getItem("studyingTime");
   const nowTime2String = window.localStorage.getItem("breakingTime");
 
-  nowTime1 = new Date(+nowTime1String);
-  nowTime2 = new Date(+nowTime2String);
+  focusTimer.nowTime = new Date(+nowTime1String);
+  restTimer.nowTime = new Date(+nowTime2String);
 
   const logString = window.localStorage.getItem("pastTimeLog");
   const logObj = JSON.parse(logString);
   pastTimeLogAll = logObj;
 }
 
-getLogFromLocalStorage();
-
 function getState() {
   if (pastTimeLogAll == "") {
     return;
   }
-  stateStudying = pastTimeLogAll[pastTimeLogAll.length - 1].state;
+  stateFocus = pastTimeLogAll[pastTimeLogAll.length - 1].state;
 }
 
-getState();
-getRealtimeSecs();
-changeStateText(!stateStudying);
-// 새로고침되면 default상태인데도 자동 작동이 되어버린다.
-// 일단 임시방편으로 조건을 이렇게 해놓고 다시 손보자
-if (nowTime1.getSeconds() > 0 || nowTime2.getSeconds() > 0) {
-  if (stateStudying) {
-    let elapsedMseconds1 =
-      nowTime1.getTime() +
-      msecsOfToday -
-      pastTimeLogAll[pastTimeLogAll.length - 1].realtime;
+// unload 전 state에 해당하는 timer가 reload시 이어서 작동하도록 한다.
+function updateByTimeLogWhenLoad(runningTimer, stoppedTImer) {
+  let recordedTimeBeforeUnload = runningTimer.nowTime.getTime();
+  let realTimeBeforeUnload = pastTimeLogAll[pastTimeLogAll.length - 1].realtime;
+  let realTimeWhenLoad = getRealtimeSecs();
 
-    nowTime1 = new Date(elapsedMseconds1);
-    updateTimer2(nowTime2);
-    updateTimer1(nowTime1);
+  // unload시점과 reload시점 사이의 시간을 더해주어서 시간이 이어서 작동하게끔
+  let elapsedMilliseconds =
+    recordedTimeBeforeUnload + (realTimeWhenLoad - realTimeBeforeUnload);
 
-    startTime1 = -elapsedMseconds1;
-    startTime2 = -nowTime2.getTime();
-    startTimer1();
-  } else {
-    let elapsedMseconds2 =
-      nowTime2.getTime() +
-      msecsOfToday -
-      pastTimeLogAll[pastTimeLogAll.length - 1].realtime;
+  runningTimer.nowTime = new Date(elapsedMilliseconds);
+  stoppedTImer.update(stoppedTImer.nowTime);
+  runningTimer.update(runningTimer.nowTime);
 
-    nowTime2 = new Date(elapsedMseconds2);
-    updateTimer1(nowTime1);
-    updateTimer2(nowTime2);
-
-    startTime2 = -elapsedMseconds2;
-    startTime1 = -nowTime1.getTime();
-    startTimer2();
-  }
+  runningTimer.startTime = -elapsedMilliseconds;
+  stoppedTImer.startTime = -stoppedTImer.nowTime.getTime();
+  runningTimer.start();
 }
-
-// 이제 원하는 정보는 다 구했나?? 2022-04-23
-
-// isStop = true일 경우에 저장되는 값에 대해서도 생각해보자
-// stop이라면 state 둘 중 어느곳도 아니다 제3의 상태이다.
-//
 
 // Jooms!! 😆😆😆
 /* 해야할 일
-- time1,2가 들어간 곳 리팩토링한 것에 맞게 고치기
+ 갑자기 2초씩 텍스트가 넘어가버리는 경우가 있다. 지연시간 보장 관련된건가??
 */
+
+// 1. 이제 스타일링 좀 손보고
+// 2. 데이터 그래프로 나타내는 단계로 넘어가자
