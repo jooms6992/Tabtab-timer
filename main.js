@@ -7,8 +7,8 @@ const screen = document.querySelector(".screen");
 const screenText = document.querySelector(".screen__text");
 const resetBtn = document.querySelector(".reset-button");
 
-const timeRecordStudy = document.querySelector(".study__time");
-const timeRecordBreak = document.querySelector(".break__time");
+const timeRecordFocus = document.querySelector(".focus__time");
+const timeRecordRest = document.querySelector(".rest__time");
 
 class Timer {
   constructor(timeRecordState) {
@@ -18,9 +18,10 @@ class Timer {
     this.timerId;
     this.isRunning;
     this.timeRecordState = timeRecordState;
+    this.update = this.update.bind(this);
   }
 
-  update = (time) => {
+  update(time) {
     if (time) {
       this.nowTime = time;
     } else {
@@ -33,7 +34,7 @@ class Timer {
 
     displayTimeText(hours, mins, secs);
     displayTotalTimeRecord(this.timeRecordState, hours, mins, secs);
-  };
+  }
 
   start() {
     if (!this.startTime) {
@@ -83,54 +84,72 @@ function displayTotalTimeRecord(timeRecordState, hours, mins, secs) {
   timeRecordState.textContent = `${hours}:${mins}:${secs}`;
 }
 
-const focusTimer = new Timer(timeRecordStudy);
-const restTimer = new Timer(timeRecordBreak);
+const focusTimer = new Timer(timeRecordFocus);
+const restTimer = new Timer(timeRecordRest);
 
-// click screen and start timer
+// click screen and start or stop timer by state
 screen.addEventListener("click", onScreenClick);
 
-// click reset button and reset timer
+// click reset button and reset both timer
 resetBtn.addEventListener("click", () => {
+  if (!confirmeReset()) {
+    return;
+  }
   focusTimer.reset();
   restTimer.reset();
 });
 
+function confirmeReset() {
+  let value = confirm("initialize all time reocords into zero 00:00 🙃");
+  return value;
+}
+
 // When Click Screen
 function onScreenClick() {
-  onStudying();
-  onBreaking();
+  onFocus();
+  onRest();
   changeStateText(stateFocus);
+  changeTheme(stateFocus);
   getRealtimeSecs();
   savePastTimeLogAllInLocalStorage(collectPastTimeLogAll());
   stateFocus = !stateFocus;
   console.log(stateFocus);
 }
 
-// When the State is studying
-function onStudying() {
+// When the State is focus
+function onFocus() {
   if (stateFocus) {
     focusTimer.stop();
-    console.log("stop study timer");
+    console.log("stop focus timer");
   } else {
     focusTimer.start();
-    console.log("start study timer");
+    console.log("start focus timer");
   }
 }
 
-// When the State is breaktime
-function onBreaking() {
+// When the State is rest
+function onRest() {
   if (stateFocus) {
     restTimer.start();
-    console.log("start break timer");
+    console.log("start rest timer");
   } else {
     restTimer.stop();
-    console.log("stop break timer");
+    console.log("stop rest timer");
   }
 }
 
 // change text by the state on the header
 function changeStateText(state) {
-  stateText.textContent = state ? "Breaking" : "Studying";
+  stateText.textContent = state ? "Rest" : "Focus";
+}
+
+// change theme color by the state
+function changeTheme(state) {
+  if (state) {
+    screen.classList.add("rest");
+  } else {
+    screen.classList.remove("rest");
+  }
 }
 
 //
@@ -138,8 +157,8 @@ function changeStateText(state) {
 let pastTimeLogAll = [];
 
 window.addEventListener("beforeunload", () => {
-  saveLogInLocalStorage("studyingTime", focusTimer.nowTime.getTime());
-  saveLogInLocalStorage("breakingTime", restTimer.nowTime.getTime());
+  saveLogInLocalStorage("focusTime", focusTimer.nowTime.getTime());
+  saveLogInLocalStorage("restTime", restTimer.nowTime.getTime());
 
   savePastTimeLogAllInLocalStorage(collectPastTimeLogAll());
 });
@@ -212,8 +231,8 @@ function saveLogInLocalStorage(keyname, value) {
 }
 
 function getLogFromLocalStorage() {
-  const nowTime1String = window.localStorage.getItem("studyingTime");
-  const nowTime2String = window.localStorage.getItem("breakingTime");
+  const nowTime1String = window.localStorage.getItem("focusTime");
+  const nowTime2String = window.localStorage.getItem("restTime");
 
   focusTimer.nowTime = new Date(+nowTime1String);
   restTimer.nowTime = new Date(+nowTime2String);
@@ -255,4 +274,6 @@ function updateByTimeLogWhenLoad(runningTimer, stoppedTImer) {
 */
 
 // 1. 이제 스타일링 좀 손보고
+// css div 라인 만들기 state text 그리고 time record부분에
+// reset 버튼에 경고창 만들어야겠다.
 // 2. 데이터 그래프로 나타내는 단계로 넘어가자

@@ -7,12 +7,8 @@
     <title>Tabtab Timer</title>
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
-      href="https://fonts.googleapis.com/css2?family=Libre+Franklin&display=swap"
+      href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@300&display=swap"
       rel="stylesheet"
     />
     <link rel="stylesheet" href="style.css" />
@@ -22,7 +18,8 @@
     <!-- Header -->
     <section class="state">
       <!-- 동적으로 해주기 -->
-      <span class="state__text">Studying</span>
+      <span class="state__text">Focus</span>
+      <div class="state__line"></div>
     </section>
     <!-- Main -->
     <section class="screen">
@@ -30,19 +27,20 @@
       <span class="screen__text">00:00:00</span>
     </section>
     <!-- Footer -->
+    <section class="time-records">
+      <div class="time-record__line"></div>
+      <ul class="time-record time-record__focus">
+        <span class="focus__state">focus</span>
+        <span class="focus__time">00:00:00</span>
+      </ul>
+      <ul class="time-record time-record__rest">
+        <span class="rest__state">rest</span>
+        <span class="rest__time">00:00:00</span>
+      </ul>
+    </section>
     <section class="buttons">
       <!-- <button class="buttons__button stop-button">stop</button> -->
       <button class="buttons__button reset-button">reset</button>
-    </section>
-    <section class="time-records">
-      <ul class="time-record time-record__study">
-        <span class="study__state">studying</span>
-        <span class="study__time">00:00:00</span>
-      </ul>
-      <ul class="time-record time-record__break">
-        <span class="break__state">breaking</span>
-        <span class="break__time">00:00:00</span>
-      </ul>
     </section>
   </body>
 </html>
