@@ -166,6 +166,7 @@ window.addEventListener("beforeunload", () => {
 getLogFromLocalStorage();
 getState();
 changeStateText(!stateFocus);
+changeTheme(!stateFocus);
 // 새로고침되면 default상태인데도 자동 작동되는 것 방지
 if (focusTimer.nowTime.getSeconds() > 0 || restTimer.nowTime.getSeconds() > 0) {
   if (stateFocus) {
