@@ -163,18 +163,44 @@ window.addEventListener("beforeunload", () => {
   savePastTimeLogAllInLocalStorage(collectPastTimeLogAll());
 });
 
-getLogFromLocalStorage();
-getState();
-changeStateText(!stateFocus);
-changeTheme(!stateFocus);
-// 새로고침되면 default상태인데도 자동 작동되는 것 방지
-if (focusTimer.nowTime.getSeconds() > 0 || restTimer.nowTime.getSeconds() > 0) {
-  if (stateFocus) {
-    updateByTimeLogWhenLoad(focusTimer, restTimer);
+window.addEventListener("load", initWhenLoad);
+
+function initWhenLoad() {
+  // 이전 기록이 없고 처음 접속하는 거라면 불러올 값이 없다.
+  if (localStorage.length == 0) {
+    console.log("Hi hello 😁");
+    return;
   } else {
-    updateByTimeLogWhenLoad(restTimer, focusTimer);
+    getLogFromLocalStorage();
+    getState();
+    changeStateText(!stateFocus);
+    changeTheme(!stateFocus);
+    // 새로고침되면 default상태인데도 자동 작동되는 것 방지
+    if (
+      focusTimer.nowTime.getSeconds() > 0 ||
+      restTimer.nowTime.getSeconds() > 0
+    ) {
+      if (stateFocus) {
+        updateByTimeLogWhenLoad(focusTimer, restTimer);
+      } else {
+        updateByTimeLogWhenLoad(restTimer, focusTimer);
+      }
+    }
   }
 }
+
+// getLogFromLocalStorage();
+// getState();
+// changeStateText(!stateFocus);
+// changeTheme(!stateFocus);
+
+// if (focusTimer.nowTime.getSeconds() > 0 || restTimer.nowTime.getSeconds() > 0) {
+//   if (stateFocus) {
+//     updateByTimeLogWhenLoad(focusTimer, restTimer);
+//   } else {
+//     updateByTimeLogWhenLoad(restTimer, focusTimer);
+//   }
+// }
 
 // secsOfToday으로 오늘 현재 시간을 알 수 있다
 function getRealtimeSecs() {
@@ -271,7 +297,7 @@ function updateByTimeLogWhenLoad(runningTimer, stoppedTImer) {
 
 // Jooms!! 😆😆😆
 /* 해야할 일
- 갑자기 2초씩 텍스트가 넘어가버리는 경우가 있다. 지연시간 보장 관련된건가??
+갑자기 2초씩 텍스트가 넘어가버리는 경우가 있다. 지연시간 보장 관련된건가??
 */
 
 // 1. 이제 스타일링 좀 손보고
