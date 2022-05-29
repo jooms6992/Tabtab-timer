@@ -189,19 +189,6 @@ function initWhenLoad() {
   }
 }
 
-// getLogFromLocalStorage();
-// getState();
-// changeStateText(!stateFocus);
-// changeTheme(!stateFocus);
-
-// if (focusTimer.nowTime.getSeconds() > 0 || restTimer.nowTime.getSeconds() > 0) {
-//   if (stateFocus) {
-//     updateByTimeLogWhenLoad(focusTimer, restTimer);
-//   } else {
-//     updateByTimeLogWhenLoad(restTimer, focusTimer);
-//   }
-// }
-
 // secsOfToday으로 오늘 현재 시간을 알 수 있다
 function getRealtimeSecs() {
   let realYear = new Date().getFullYear();
@@ -304,3 +291,66 @@ function updateByTimeLogWhenLoad(runningTimer, stoppedTImer) {
 // css div 라인 만들기 state text 그리고 time record부분에
 // reset 버튼에 경고창 만들어야겠다.
 // 2. 데이터 그래프로 나타내는 단계로 넘어가자
+
+// let's visualize data into several kinds of charts
+let myChart;
+
+const chartBtn = document.querySelector("#chart-button");
+const chartContainer = document.querySelector(".pop-up__chart");
+const chartDelBtn = document.querySelector(".chart__del-button");
+
+chartBtn.addEventListener("click", getChart);
+chartDelBtn.addEventListener("click", destroyChart);
+
+function getChart() {
+  console.log(focusTimer.nowTime.getTime());
+  console.log(restTimer.nowTime.getTime());
+  showPopUp(chartContainer, "pop-up__chart--show");
+  const ctx = document.querySelector("#test1").getContext("2d");
+  const labels = ["Focus", "Rest"];
+  const data = {
+    labels,
+    datasets: [
+      {
+        label: "My First Dataset",
+        data: [
+          Math.floor(focusTimer.nowTime.getTime() / (1000 * 60)),
+          Math.floor(restTimer.nowTime.getTime() / (1000 * 60)),
+        ],
+        backgroundColor: ["#119621", "#ffa500"],
+        hoverOffset: 4,
+      },
+    ],
+  };
+  const config = {
+    type: "doughnut",
+    data: data,
+    options: {
+      responsive: true,
+      plugins: {
+        legend: {
+          position: "bottom",
+        },
+        title: {
+          display: true,
+          text: "All day Focus or Rest",
+        },
+      },
+    },
+  };
+
+  myChart = new Chart(ctx, config);
+}
+
+function destroyChart() {
+  myChart.destroy();
+  hidePopUp(chartContainer, "pop-up__chart--show");
+}
+
+function showPopUp(popUpType, className) {
+  popUpType.classList.add(className);
+}
+
+function hidePopUp(popUpType, className) {
+  popUpType.classList.remove(className);
+}

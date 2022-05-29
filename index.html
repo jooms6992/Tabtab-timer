@@ -12,11 +12,18 @@
       rel="stylesheet"
     />
     <link rel="stylesheet" href="style.css" />
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@3.8.0/dist/chart.min.js"></script>
     <script src="main.js" defer></script>
   </head>
   <body>
     <!-- Header -->
-    <header class="header">Time never stops</header>
+    <header class="header">
+      <div class="menu-left"></div>
+      <span class="title">Time never stops</span>
+      <div class="menu-right">
+        <button id="chart-button" class="menu-icon">chart</button>
+      </div>
+    </header>
     <!-- Main -->
     <section class="main">
       <section class="state">
@@ -43,6 +50,12 @@
       <section class="buttons">
         <!-- <button class="buttons__button stop-button">stop</button> -->
         <button class="buttons__button reset-button">reset</button>
+      </section>
+    </section>
+    <section class="pop-up">
+      <section class="pop-up__chart">
+        <canvas id="test1"></canvas>
+        <button class="chart__del-button">❤</button>
       </section>
     </section>
   </body>

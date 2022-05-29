@@ -34,16 +34,25 @@ body {
 
 /* Header */
 .header {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: nowrap;
   background-color: #ffffff;
   color: black;
   width: 100%;
   height: var(--header-height);
-  line-height: var(--header-height);
   margin-bottom: 40px;
-  font-size: 24px;
-  font-weight: bolder;
-  text-align: center;
   border-bottom: 1px solid gainsboro;
+}
+
+.header .title {
+  font-weight: bolder;
+  font-size: 24px;
+  line-height: var(--header-height);
+  text-align: center;
+  pointer-events: none;
 }
 
 /* Main */
@@ -141,4 +150,28 @@ body {
   height: 60px;
   border-radius: 8px;
   background-color: #efefef;
+}
+
+/* Pop Up */
+
+/* Chart */
+.pop-up__chart {
+  display: none;
+  position: fixed;
+  width: 600px;
+  height: 400px;
+  background-color: cornsilk;
+  /* opacity: 90%; */
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+}
+
+.pop-up__chart--show {
+  display: block;
+}
+
+#test1 {
+  max-width: 400px;
+  max-height: 400px;
 }
