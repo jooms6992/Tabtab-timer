@@ -295,6 +295,10 @@ function updateByTimeLogWhenLoad(runningTimer, stoppedTImer) {
 // let's visualize data into several kinds of charts
 let myChart;
 
+Chart.defaults.plugins.tooltip.bodyFont = { size: 14 };
+Chart.defaults.plugins.tooltip.padding = 10;
+Chart.defaults.plugins.tooltip.boxPadding = 4;
+
 const chartBtn = document.querySelector("#chart-button");
 const chartContainer = document.querySelector(".pop-up__chart");
 const chartDelBtn = document.querySelector(".chart__del-button");
@@ -314,8 +318,10 @@ function getChart() {
       {
         label: "My First Dataset",
         data: [
-          Math.floor(focusTimer.nowTime.getTime() / (1000 * 60)),
-          Math.floor(restTimer.nowTime.getTime() / (1000 * 60)),
+          Math.floor(focusTimer.nowTime.getTime() / 1000),
+          Math.floor(restTimer.nowTime.getTime() / 1000),
+          // Math.floor(focusTimer.nowTime.getTime() / (1000 * 60)),
+          // Math.floor(restTimer.nowTime.getTime() / (1000 * 60)),
         ],
         backgroundColor: ["#119621", "#ffa500"],
         hoverOffset: 4,
@@ -335,6 +341,30 @@ function getChart() {
           display: true,
           text: "All day Focus or Rest",
         },
+        subtitle: {
+          display: true,
+          text: "by minutes",
+          padding: {
+            bottom: 10,
+          },
+        },
+        tooltip: {
+          callbacks: {
+            label: function (context) {
+              if (context.formattedValue < 60) {
+                return context.formattedValue + "secs";
+              }
+              return Math.floor(context.formattedValue / 60) + "mins";
+              // return context.formattedValue + "mins";
+            },
+            title: function (context) {
+              return context[0].label;
+            },
+          },
+        },
+      },
+      layout: {
+        padding: 20,
       },
     },
   };
