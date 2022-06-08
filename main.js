@@ -351,10 +351,10 @@ function getChart() {
         tooltip: {
           callbacks: {
             label: function (context) {
-              if (context.formattedValue < 60) {
-                return context.formattedValue + "secs";
+              if (context.parsed < 60) {
+                return context.parsed + "secs";
               }
-              return Math.floor(context.formattedValue / 60) + "mins";
+              return Math.floor(context.parsed / 60) + "mins";
               // return context.formattedValue + "mins";
             },
             title: function (context) {
