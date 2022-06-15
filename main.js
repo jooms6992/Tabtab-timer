@@ -157,6 +157,9 @@ function changeTheme(state) {
 let pastTimeLogAll = [];
 
 window.addEventListener("beforeunload", () => {
+  if (localStorage.length == 0) {
+    return;
+  }
   saveLogInLocalStorage("focusTime", focusTimer.nowTime.getTime());
   saveLogInLocalStorage("restTime", restTimer.nowTime.getTime());
 
@@ -195,6 +198,9 @@ function getRealtimeSecs() {
   let realMonth = new Date().getMonth();
   let realDate = new Date().getDate();
   let realtimeDefault = new Date(realYear, realMonth, realDate, 0, 0, 0);
+  // let realtimeDefault = new Date();
+  // realtimeDefault.setHours(0, 0, 0, 0);
+
   let realtime = new Date();
 
   let msecsOfToday = realtime.getTime() - realtimeDefault.getTime();
@@ -318,8 +324,8 @@ function getChart() {
       {
         label: "My First Dataset",
         data: [
-          Math.floor(focusTimer.nowTime.getTime() / 1000),
-          Math.floor(restTimer.nowTime.getTime() / 1000),
+          Math.floor(focusTimer.nowTime.getTime() / 1000) || 1,
+          Math.floor(restTimer.nowTime.getTime() / 1000) || 1,
           // Math.floor(focusTimer.nowTime.getTime() / (1000 * 60)),
           // Math.floor(restTimer.nowTime.getTime() / (1000 * 60)),
         ],
