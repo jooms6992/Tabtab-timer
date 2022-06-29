@@ -168,10 +168,10 @@ body {
 }
 
 .pop-up__chart--show {
-  display: block;
+  display: flex;
 }
 
-#test1 {
+.test-chart {
   max-width: 400px;
   max-height: 400px;
 }

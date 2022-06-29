@@ -1,5 +1,7 @@
 "use strict";
 
+// import { Tooltip } from "chart.js";
+
 let stateFocus = false;
 
 const stateText = document.querySelector(".state__text");
@@ -299,7 +301,9 @@ function updateByTimeLogWhenLoad(runningTimer, stoppedTImer) {
 // 2. 데이터 그래프로 나타내는 단계로 넘어가자
 
 // let's visualize data into several kinds of charts
-let myChart;
+let myDoughnutChart;
+let myPieChart;
+let testArr = [];
 
 Chart.defaults.plugins.tooltip.bodyFont = { size: 14 };
 Chart.defaults.plugins.tooltip.padding = 10;
@@ -309,13 +313,19 @@ const chartBtn = document.querySelector("#chart-button");
 const chartContainer = document.querySelector(".pop-up__chart");
 const chartDelBtn = document.querySelector(".chart__del-button");
 
-chartBtn.addEventListener("click", getChart);
+chartBtn.addEventListener("click", () => {
+  getPastTimeLog();
+  getChart();
+});
 chartDelBtn.addEventListener("click", destroyChart);
 
 function getChart() {
-  console.log(focusTimer.nowTime.getTime());
-  console.log(restTimer.nowTime.getTime());
   showPopUp(chartContainer, "pop-up__chart--show");
+  getDoughnutChart();
+  getPolarAreaChart();
+}
+
+function getDoughnutChart() {
   const ctx = document.querySelector("#test1").getContext("2d");
   const labels = ["Focus", "Rest"];
   const data = {
@@ -329,7 +339,9 @@ function getChart() {
           // Math.floor(focusTimer.nowTime.getTime() / (1000 * 60)),
           // Math.floor(restTimer.nowTime.getTime() / (1000 * 60)),
         ],
-        backgroundColor: ["#119621", "#ffa500"],
+        backgroundColor: ["#5CCD56", "#FFDC4F"],
+        borderColor: ["#119621", "#ffa500"],
+        // backgroundColor: ["#119621", "#ffa500"],
         hoverOffset: 4,
       },
     ],
@@ -375,11 +387,90 @@ function getChart() {
     },
   };
 
-  myChart = new Chart(ctx, config);
+  myDoughnutChart = new Chart(ctx, config);
+}
+
+//
+
+function getPolarAreaChart() {
+  const ctx = document.querySelector("#test2").getContext("2d");
+  const data = {
+    labels: ["Focus", "Rest"],
+    datasets: [
+      {
+        label: "My First Dataset",
+        data: testArr || [1, 1],
+        // backgroundColor: ["#119621", "#ffa500"],
+        // borderColor: ["#119621", "#ffa500"],
+        borderWidth: 1,
+        hoverBorderWidth: 3,
+        hoverBorderColor: ["#119621", "#ffa500"],
+        hoverOffset: 4,
+      },
+    ],
+  };
+  const config = {
+    type: "polarArea",
+    data: data,
+    options: {
+      parsing: {
+        key: "elapsed",
+      },
+      backgroundColor: function (context) {
+        const index = context.dataIndex;
+        const value = context.dataset.data[index];
+        // return index % 2 == 0 ? "#119621" : "#ffa500";
+        return index % 2 == 0
+          ? "rgba(92, 205, 86, 0.5)"
+          : "rgba(255, 220, 79, 0.7)";
+      },
+      scales: {},
+      plugins: {
+        legend: {
+          display: false,
+        },
+        title: {
+          display: true,
+          text: "your pattern",
+        },
+        tooltip: {
+          callbacks: {
+            label: function (context) {
+              return context.formattedValue + "mins";
+            },
+            title: function (context) {
+              let now = new Date();
+              let timeStartAt = new Date(
+                now.setHours(0, 0, 0, 0) + context[0].raw.startAt
+              );
+              return `from ${addZero(timeStartAt.getHours())} : ${addZero(
+                timeStartAt.getMinutes()
+              )}`;
+            },
+          },
+        },
+      },
+      layout: {
+        padding: {
+          right: 20,
+          top: 20,
+        },
+      },
+      // labels: function (context) {
+      //   const index = context.dataIndex;
+      //   console.log(context);
+      //   // const value = context.dataset.data[index];
+      //   return index % 2 == 0 ? "Focus" : "Rest";
+      // },
+    },
+  };
+
+  myPieChart = new Chart(ctx, config);
 }
 
 function destroyChart() {
-  myChart.destroy();
+  myDoughnutChart.destroy();
+  myPieChart.destroy();
   hidePopUp(chartContainer, "pop-up__chart--show");
 }
 
@@ -390,3 +481,70 @@ function showPopUp(popUpType, className) {
 function hidePopUp(popUpType, className) {
   popUpType.classList.remove(className);
 }
+
+/*
+애초에 state가 같으면 += 로 누적해서 기존의 elapsedTime값을 저장하고
+달라졌을 때 새로운 객체에 새로운 elapsedTime에 저장
+*/
+
+// 여기서 reload할 때와 같이 데이터가 갱신이 되어야 한다.
+// 배열 메서드를 활용할 때다!!
+function getPastTimeLog() {
+  // if (pastTimeLogAll == "") {
+  let accArr = [];
+  testArr = [];
+  // }
+  const logString = window.localStorage.getItem("pastTimeLog");
+  const logArray = JSON.parse(logString);
+  let currentState = false;
+  let accElapsed = 0;
+
+  for (let obj of logArray) {
+    if (!obj.elapsedTime) {
+      continue;
+    }
+    if (currentState != obj.state) {
+      accArr.push({
+        elapsed: accElapsed,
+        startAt: obj.realtime - obj.elapsedTime,
+      });
+
+      // accArr.push(accElapsed);
+
+      accElapsed = 0;
+    }
+    accElapsed += obj.elapsedTime;
+    currentState = obj.state;
+  }
+
+  // 데이터 갱신해서 차트에 최신 데이터 띄우기
+  savePastTimeLogAllInLocalStorage(collectPastTimeLogAll());
+  // accArr.push(accElapsed);
+  accArr.push({ elapsed: accElapsed });
+
+  // 밀린 인덱스 조정하기
+  for (let i = 0; i < accArr.length - 1; i++) {
+    accArr[i].elapsed = accArr[i + 1].elapsed;
+  }
+  accArr.pop();
+
+  console.log(accArr);
+  // for (let value of accArr) {
+  //   if (value == 0) {
+  //     continue;
+  //   }
+  //   testArr.push(Math.ceil(value / (1000 * 60)));
+  // }
+  for (let value of accArr) {
+    if (value.elapsed == 0) {
+      continue;
+    }
+    testArr.push({
+      elapsed: Math.ceil(value.elapsed / (1000 * 60)),
+      startAt: value.startAt,
+    });
+  }
+  console.log(testArr);
+}
+
+// 우선 PI차트 기본을 만들어 놓고 데이터가 어떤식으로 이용되는지 보자
