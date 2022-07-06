@@ -108,6 +108,7 @@ function confirmeReset() {
 
 // When Click Screen
 function onScreenClick() {
+  console.log("onScreenClick func");
   onFocus();
   onRest();
   changeStateText(stateFocus);
@@ -162,9 +163,24 @@ window.addEventListener("beforeunload", () => {
   if (localStorage.length == 0) {
     return;
   }
+  screen.style.backgroundColor = "green";
   saveLogInLocalStorage("focusTime", focusTimer.nowTime.getTime());
   saveLogInLocalStorage("restTime", restTimer.nowTime.getTime());
+  //
+  // 문제발견!!!
+  //
+  // 왜 이 아래로는 실행이 안되는걸까??
+  // document.querySelector("body").style.backgroundColor = "red";
 
+  // savePastTimeLogAllInLocalStorage(collectPastTimeLogAll());
+});
+
+// 일단 둘로 쪼개놓으니 되간한다 원인은 아직 모르겠다.. ☹
+window.addEventListener("beforeunload", () => {
+  if (localStorage.length == 0) {
+    return;
+  }
+  document.querySelector("body").style.backgroundColor = "red";
   savePastTimeLogAllInLocalStorage(collectPastTimeLogAll());
 });
 
@@ -267,8 +283,12 @@ function getLogFromLocalStorage() {
 function getState() {
   if (pastTimeLogAll == "") {
     return;
+  } else if (pastTimeLogAll.length == 1) {
+    console.log("ohohohohooo!");
+    stateFocus = true;
+  } else {
+    stateFocus = pastTimeLogAll[pastTimeLogAll.length - 1].state;
   }
-  stateFocus = pastTimeLogAll[pastTimeLogAll.length - 1].state;
 }
 
 // unload 전 state에 해당하는 timer가 reload시 이어서 작동하도록 한다.
@@ -282,6 +302,7 @@ function updateByTimeLogWhenLoad(runningTimer, stoppedTImer) {
     recordedTimeBeforeUnload + (realTimeWhenLoad - realTimeBeforeUnload);
 
   runningTimer.nowTime = new Date(elapsedMilliseconds);
+
   stoppedTImer.update(stoppedTImer.nowTime);
   runningTimer.update(runningTimer.nowTime);
 
