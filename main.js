@@ -163,24 +163,9 @@ window.addEventListener("beforeunload", () => {
   if (localStorage.length == 0) {
     return;
   }
-  screen.style.backgroundColor = "green";
   saveLogInLocalStorage("focusTime", focusTimer.nowTime.getTime());
-  saveLogInLocalStorage("restTime", restTimer.nowTime.getTime());
-  //
-  // 문제발견!!!
-  //
-  // 왜 이 아래로는 실행이 안되는걸까??
-  // document.querySelector("body").style.backgroundColor = "red";
+  saveLogInLocalStorage("restTime", restTimer.nowTime?.getTime());
 
-  // savePastTimeLogAllInLocalStorage(collectPastTimeLogAll());
-});
-
-// 일단 둘로 쪼개놓으니 되간한다 원인은 아직 모르겠다.. ☹
-window.addEventListener("beforeunload", () => {
-  if (localStorage.length == 0) {
-    return;
-  }
-  document.querySelector("body").style.backgroundColor = "red";
   savePastTimeLogAllInLocalStorage(collectPastTimeLogAll());
 });
 
@@ -264,7 +249,7 @@ function getElapsedTime(obj) {
 // 2. execute function before browser get refreshed or closed
 // 3. get data from the Local Storage
 
-function saveLogInLocalStorage(keyname, value) {
+function saveLogInLocalStorage(keyname, value = 0) {
   window.localStorage.setItem(keyname, value);
 }
 
@@ -284,7 +269,6 @@ function getState() {
   if (pastTimeLogAll == "") {
     return;
   } else if (pastTimeLogAll.length == 1) {
-    console.log("ohohohohooo!");
     stateFocus = true;
   } else {
     stateFocus = pastTimeLogAll[pastTimeLogAll.length - 1].state;
