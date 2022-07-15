@@ -108,7 +108,6 @@ function confirmeReset() {
 
 // When Click Screen
 function onScreenClick() {
-  console.log("onScreenClick func");
   onFocus();
   onRest();
   changeStateText(stateFocus);
@@ -164,6 +163,7 @@ window.addEventListener("beforeunload", () => {
     return;
   }
   saveLogInLocalStorage("focusTime", focusTimer.nowTime.getTime());
+  // 옵셔널 체이닝으로 에러가 안뜨고 undefined를 반환하게끔
   saveLogInLocalStorage("restTime", restTimer.nowTime?.getTime());
 
   savePastTimeLogAllInLocalStorage(collectPastTimeLogAll());
@@ -249,6 +249,7 @@ function getElapsedTime(obj) {
 // 2. execute function before browser get refreshed or closed
 // 3. get data from the Local Storage
 
+// value 즉 시간값이 없을땐 기본값 0으로 디폴트 파라미터 설정
 function saveLogInLocalStorage(keyname, value = 0) {
   window.localStorage.setItem(keyname, value);
 }
@@ -340,7 +341,7 @@ function getDoughnutChart() {
         label: "My First Dataset",
         data: [
           Math.floor(focusTimer.nowTime.getTime() / 1000) || 1,
-          Math.floor(restTimer.nowTime.getTime() / 1000) || 1,
+          Math.floor(restTimer.nowTime?.getTime() / 1000) || 1,
           // Math.floor(focusTimer.nowTime.getTime() / (1000 * 60)),
           // Math.floor(restTimer.nowTime.getTime() / (1000 * 60)),
         ],
