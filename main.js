@@ -1,22 +1,26 @@
-"use strict";
+'use strict';
 
 // import { Tooltip } from "chart.js";
 
 let stateFocus = false;
 
-const stateText = document.querySelector(".state__text");
-const screen = document.querySelector(".screen");
-const screenText = document.querySelector(".screen__text");
-const resetBtn = document.querySelector(".reset-button");
+const stateText = document.querySelector('.state__text');
+const screen = document.querySelector('.screen');
+const screenText = document.querySelector('.screen__text');
+const resetBtn = document.querySelector('.reset-button');
 
-const timeRecordFocus = document.querySelector(".focus__time");
-const timeRecordRest = document.querySelector(".rest__time");
+const timeRecordFocus = document.querySelector('.focus__time');
+const timeRecordRest = document.querySelector('.rest__time');
 
 class Timer {
   constructor(timeRecordState) {
     this.startTime = 0;
     this.stopTime = 0;
     this.nowTime;
+    // //
+    // this.currentTime;
+    // this.currStartTime;
+    // //
     this.timerId;
     this.isRunning;
     this.timeRecordState = timeRecordState;
@@ -34,7 +38,17 @@ class Timer {
     let mins = addZero(this.nowTime.getMinutes());
     let hours = addZero(this.nowTime.getHours() - 9);
 
+    // //
+    // this.currentTime = new Date(Date.now() - this.currStartTime);
+
+    // let currSecs = addZero(this.currentTime.getSeconds());
+    // let currMins = addZero(this.currentTime.getMinutes());
+    // let currHours = addZero(this.currentTime.getHours() - 9);
+
+    // displayTimeText(currHours, currMins, currSecs);
+    // //
     displayTimeText(hours, mins, secs);
+
     displayTotalTimeRecord(this.timeRecordState, hours, mins, secs);
   }
 
@@ -44,6 +58,9 @@ class Timer {
     } else {
       this.startTime += Date.now() - this.stopTime; // 재시작 할 때
     }
+    // //
+    // this.currStartTime = Date.now();
+    // //
     this.isRunning = true;
     this.update(this.nowTime);
     this.timerId = setInterval(this.update, 1000);
@@ -73,7 +90,7 @@ class Timer {
 
 // add zero to single digit number of time text
 function addZero(num) {
-  return num < 10 ? "0" + num : "" + num;
+  return num < 10 ? '0' + num : '' + num;
 }
 
 // show time text on screen
@@ -90,10 +107,10 @@ const focusTimer = new Timer(timeRecordFocus);
 const restTimer = new Timer(timeRecordRest);
 
 // click screen and start or stop timer by state
-screen.addEventListener("click", onScreenClick);
+screen.addEventListener('click', onScreenClick);
 
 // click reset button and reset both timer
-resetBtn.addEventListener("click", () => {
+resetBtn.addEventListener('click', () => {
   if (!confirmeReset()) {
     return;
   }
@@ -102,7 +119,7 @@ resetBtn.addEventListener("click", () => {
 });
 
 function confirmeReset() {
-  let value = confirm("initialize all time reocords into zero 00:00 🙃");
+  let value = confirm('initialize all time reocords into zero 00:00 🙃');
   return value;
 }
 
@@ -122,10 +139,10 @@ function onScreenClick() {
 function onFocus() {
   if (stateFocus) {
     focusTimer.stop();
-    console.log("stop focus timer");
+    console.log('stop focus timer');
   } else {
     focusTimer.start();
-    console.log("start focus timer");
+    console.log('start focus timer');
   }
 }
 
@@ -133,24 +150,24 @@ function onFocus() {
 function onRest() {
   if (stateFocus) {
     restTimer.start();
-    console.log("start rest timer");
+    console.log('start rest timer');
   } else {
     restTimer.stop();
-    console.log("stop rest timer");
+    console.log('stop rest timer');
   }
 }
 
 // change text by the state on the header
 function changeStateText(state) {
-  stateText.textContent = state ? "Rest" : "Focus";
+  stateText.textContent = state ? 'Rest' : 'Focus';
 }
 
 // change theme color by the state
 function changeTheme(state) {
   if (state) {
-    screen.classList.add("rest");
+    screen.classList.add('rest');
   } else {
-    screen.classList.remove("rest");
+    screen.classList.remove('rest');
   }
 }
 
@@ -158,23 +175,23 @@ function changeTheme(state) {
 //로컬스토리지 사용해서 time log 저장 및 활용
 let pastTimeLogAll = [];
 
-window.addEventListener("beforeunload", () => {
+window.addEventListener('beforeunload', () => {
   if (localStorage.length == 0) {
     return;
   }
-  saveLogInLocalStorage("focusTime", focusTimer.nowTime.getTime());
+  saveLogInLocalStorage('focusTime', focusTimer.nowTime.getTime());
   // 옵셔널 체이닝으로 에러가 안뜨고 undefined를 반환하게끔
-  saveLogInLocalStorage("restTime", restTimer.nowTime?.getTime());
+  saveLogInLocalStorage('restTime', restTimer.nowTime?.getTime());
 
   savePastTimeLogAllInLocalStorage(collectPastTimeLogAll());
 });
 
-window.addEventListener("load", initWhenLoad);
+window.addEventListener('load', initWhenLoad);
 
 function initWhenLoad() {
   // 이전 기록이 없고 처음 접속하는 거라면 불러올 값이 없다.
   if (localStorage.length == 0) {
-    console.log("Hi hello 😁");
+    console.log('Hi hello 😁');
     return;
   } else {
     getLogFromLocalStorage();
@@ -230,7 +247,7 @@ function collectPastTimeLogAll() {
 function savePastTimeLogAllInLocalStorage(obj) {
   getElapsedTime(obj);
   const objString = JSON.stringify(obj);
-  window.localStorage.setItem("pastTimeLog", objString);
+  window.localStorage.setItem('pastTimeLog', objString);
 }
 // 경과된 시간값 얻기 // 나중에 그래프로 표현할 때 필요한 값이다. 사이 시간 값.
 // 근데 어차피 객체안의 realtime프로퍼티로 구하는데 따로 새 프로퍼티에 추가할 필요가 있나 싶구여,,
@@ -255,19 +272,19 @@ function saveLogInLocalStorage(keyname, value = 0) {
 }
 
 function getLogFromLocalStorage() {
-  const nowTime1String = window.localStorage.getItem("focusTime");
-  const nowTime2String = window.localStorage.getItem("restTime");
+  const nowTime1String = window.localStorage.getItem('focusTime');
+  const nowTime2String = window.localStorage.getItem('restTime');
 
   focusTimer.nowTime = new Date(+nowTime1String);
   restTimer.nowTime = new Date(+nowTime2String);
 
-  const logString = window.localStorage.getItem("pastTimeLog");
+  const logString = window.localStorage.getItem('pastTimeLog');
   const logObj = JSON.parse(logString);
   pastTimeLogAll = logObj;
 }
 
 function getState() {
-  if (pastTimeLogAll == "") {
+  if (pastTimeLogAll == '') {
     return;
   } else if (pastTimeLogAll.length == 1) {
     stateFocus = true;
@@ -308,66 +325,68 @@ function updateByTimeLogWhenLoad(runningTimer, stoppedTImer) {
 
 // let's visualize data into several kinds of charts
 let myDoughnutChart;
-let myPieChart;
+let myPolarAreaChart;
+let myTimetableChart;
 let testArr = [];
 
 Chart.defaults.plugins.tooltip.bodyFont = { size: 14 };
 Chart.defaults.plugins.tooltip.padding = 10;
 Chart.defaults.plugins.tooltip.boxPadding = 4;
 
-const chartBtn = document.querySelector("#chart-button");
-const chartContainer = document.querySelector(".pop-up__chart");
-const chartDelBtn = document.querySelector(".chart__del-button");
+const chartBtn = document.querySelector('#chart-button');
+const chartContainer = document.querySelector('.pop-up__chart');
+const chartDelBtn = document.querySelector('.chart__del-button');
 
-chartBtn.addEventListener("click", () => {
+chartBtn.addEventListener('click', () => {
   getPastTimeLog();
   getChart();
 });
-chartDelBtn.addEventListener("click", destroyChart);
+chartDelBtn.addEventListener('click', destroyChart);
 
 function getChart() {
-  showPopUp(chartContainer, "pop-up__chart--show");
-  getDoughnutChart();
-  getPolarAreaChart();
+  showPopUp(chartContainer, 'pop-up__chart--show');
+  // getDoughnutChart();
+  // getPolarAreaChart();
+  getTimetableChart();
 }
 
 function getDoughnutChart() {
-  const ctx = document.querySelector("#test1").getContext("2d");
-  const labels = ["Focus", "Rest"];
+  const ctx = document.querySelector('#test1').getContext('2d');
+  const labels = ['Focus', 'Rest'];
   const data = {
     labels,
     datasets: [
       {
-        label: "My First Dataset",
+        label: 'My First Dataset',
         data: [
           Math.floor(focusTimer.nowTime.getTime() / 1000) || 1,
           Math.floor(restTimer.nowTime?.getTime() / 1000) || 1,
           // Math.floor(focusTimer.nowTime.getTime() / (1000 * 60)),
           // Math.floor(restTimer.nowTime.getTime() / (1000 * 60)),
         ],
-        backgroundColor: ["#5CCD56", "#FFDC4F"],
-        borderColor: ["#119621", "#ffa500"],
+        backgroundColor: ['#5CCD56', '#FFDC4F'],
+        borderColor: ['#119621', '#ffa500'],
         // backgroundColor: ["#119621", "#ffa500"],
         hoverOffset: 4,
       },
     ],
   };
   const config = {
-    type: "doughnut",
+    type: 'doughnut',
     data: data,
     options: {
       responsive: true,
       plugins: {
         legend: {
-          position: "bottom",
+          position: 'bottom',
         },
         title: {
           display: true,
-          text: "All day Focus or Rest",
+          text: 'All day Focus or Rest',
         },
         subtitle: {
           display: true,
-          text: "by minutes",
+          text: 'by minutes',
           padding: {
             bottom: 10,
           },
@@ -376,9 +395,9 @@ function getDoughnutChart() {
           callbacks: {
             label: function (context) {
               if (context.parsed < 60) {
-                return context.parsed + "secs";
+                return context.parsed + 'secs';
               }
-              return Math.floor(context.parsed / 60) + "mins";
+              return Math.floor(context.parsed / 60) + 'mins';
               // return context.formattedValue + "mins";
             },
             title: function (context) {
@@ -399,36 +418,36 @@ function getDoughnutChart() {
 //
 
 function getPolarAreaChart() {
-  const ctx = document.querySelector("#test2").getContext("2d");
+  const ctx = document.querySelector('#test2').getContext('2d');
   const data = {
-    labels: ["Focus", "Rest"],
+    labels: ['Focus', 'Rest'],
     datasets: [
       {
-        label: "My First Dataset",
+        label: 'My First Dataset',
         data: testArr || [1, 1],
         // backgroundColor: ["#119621", "#ffa500"],
         // borderColor: ["#119621", "#ffa500"],
         borderWidth: 1,
         hoverBorderWidth: 3,
-        hoverBorderColor: ["#119621", "#ffa500"],
+        hoverBorderColor: ['#119621', '#ffa500'],
         hoverOffset: 4,
       },
     ],
   };
   const config = {
-    type: "polarArea",
+    type: 'polarArea',
     data: data,
     options: {
       parsing: {
-        key: "elapsed",
+        key: 'elapsed',
       },
       backgroundColor: function (context) {
         const index = context.dataIndex;
         const value = context.dataset.data[index];
         // return index % 2 == 0 ? "#119621" : "#ffa500";
         return index % 2 == 0
-          ? "rgba(92, 205, 86, 0.5)"
-          : "rgba(255, 220, 79, 0.7)";
+          ? 'rgba(92, 205, 86, 0.5)'
+          : 'rgba(255, 220, 79, 0.7)';
       },
       scales: {},
       plugins: {
@@ -437,12 +456,12 @@ function getPolarAreaChart() {
         },
         title: {
           display: true,
-          text: "your pattern",
+          text: 'your pattern',
         },
         tooltip: {
           callbacks: {
             label: function (context) {
-              return context.formattedValue + "mins";
+              return context.formattedValue + 'mins';
             },
             title: function (context) {
               let now = new Date();
@@ -471,13 +490,91 @@ function getPolarAreaChart() {
     },
   };
 
-  myPieChart = new Chart(ctx, config);
+  myPolarAreaChart = new Chart(ctx, config);
+}
+
+// Horizontal Bar Chart
+function getTimetableChart() {
+  const ctx = document.querySelector('#test3').getContext('2d');
+  const data = {
+    labels: [
+      '00',
+      '01',
+      '02',
+      '03',
+      '04',
+      '05',
+      '06',
+      // "07",
+      // "08",
+      // "09",
+      // "10",
+      // "11",
+      // "12",
+      // "13",
+      // "14",
+      // "15",
+      // "16",
+      // "17",
+      // "18",
+      // "19",
+      // "20",
+      // "21",
+      // "22",
+      // "23",
+      // "24",
+    ],
+    datasets: [
+      {
+        label: 'Focus',
+        data: ['10', '20', '60'],
+        borderWidth: 1,
+        hoverBorderWidth: 3,
+        hoverOffset: 4,
+        backgroundColor: 'red',
+        barPercentage: 0.5,
+      },
+    ],
+  };
+  const config = {
+    type: 'bar',
+    data: data,
+    options: {
+      scales: {
+        x: {
+          max: 60,
+          min: 0,
+        },
+      },
+      // indexAxis: "y",
+      // Elements options apply to all of the options unless overridden in a dataset
+      // In this case, we are setting the border of each horizontal bar to be 2px wide
+      elements: {
+        bar: {
+          borderWidth: 2,
+        },
+      },
+      responsive: true,
+      plugins: {
+        legend: {
+          position: 'right',
+        },
+        title: {
+          display: true,
+          text: 'Chart.js Horizontal Bar Chart',
+        },
+      },
+    },
+  };
+
+  myTimetableChart = new Chart(ctx, config);
 }
 
 function destroyChart() {
-  myDoughnutChart.destroy();
-  myPieChart.destroy();
-  hidePopUp(chartContainer, "pop-up__chart--show");
+  myTimetableChart.destroy();
+  // myDoughnutChart.destroy();
+  // myPolarAreaChart.destroy();
+  hidePopUp(chartContainer, 'pop-up__chart--show');
 }
 
 function showPopUp(popUpType, className) {
@@ -500,7 +597,7 @@ function getPastTimeLog() {
   let accArr = [];
   testArr = [];
   // }
-  const logString = window.localStorage.getItem("pastTimeLog");
+  const logString = window.localStorage.getItem('pastTimeLog');
   const logArray = JSON.parse(logString);
   let currentState = false;
   let accElapsed = 0;
@@ -554,3 +651,18 @@ function getPastTimeLog() {
 }
 
 // 우선 PI차트 기본을 만들어 놓고 데이터가 어떤식으로 이용되는지 보자
+
+// Side bar toggle buttton
+const toggleSidebarButton = document.querySelector('.header__toggle-btn');
+const sidebar = document.querySelector('.sidebar');
+
+toggleSidebarButton.addEventListener('click', () => {
+  sidebar.classList.toggle('active');
+  // if (sidebar.style.display === 'none') {
+  //   sidebar.style.display = 'block';
+  //   sidebar.classList.add('active');
+  // } else {
+  //   sidebar.style.display = 'none';
+  //   sidebar.classList.remove('active');
+  // }
+});

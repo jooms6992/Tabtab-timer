@@ -17,17 +17,21 @@ button {
   cursor: pointer;
   border: none;
   outline: none;
-  font-family: "Open Sans", sans-serif;
+  font-family: 'Open Sans', sans-serif;
 }
 
 ul {
   padding-left: 0;
 }
 
+li {
+  list-style: none;
+}
+
 body {
   color: black;
   background-color: #ffffff;
-  font-family: "Open Sans", sans-serif;
+  font-family: 'Open Sans', sans-serif;
   margin: 0;
   padding: 0;
 }
@@ -53,6 +57,33 @@ body {
   line-height: var(--header-height);
   text-align: center;
   pointer-events: none;
+}
+
+/* Toggle Button */
+.header__toggle-btn {
+  position: fixed;
+  left: 18px;
+  font-size: 18px;
+  cursor: pointer;
+}
+
+/* Side bar */
+.sidebar {
+  background-color: yellow;
+  /* display: none; */
+  opacity: 0;
+  position: absolute;
+  top: 52px;
+  left: -100px;
+  width: 350px;
+  padding: 20px;
+  /* overflow-y: auto; */
+  transition: all 250ms ease;
+}
+
+.sidebar.active {
+  opacity: 1;
+  transform: translateX(100px);
 }
 
 /* Main */
@@ -172,6 +203,11 @@ body {
 }
 
 .test-chart {
-  max-width: 400px;
-  max-height: 400px;
+  /* max-width: 400px; */
+  /* max-height: 400px; */
+}
+
+#test1,
+#test2 {
+  display: none;
 }

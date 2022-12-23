@@ -5,6 +5,11 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Tabtab Timer</title>
+    <!-- favicon 추가하기 -->
+    <script
+      src="https://kit.fontawesome.com/2c44736190.js"
+      crossorigin="anonymous"
+    ></script>
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
@@ -23,7 +28,19 @@
       <div class="menu-right">
         <button id="chart-button" class="menu-icon">chart</button>
       </div>
+      <!-- Toggle Button for a side bar -->
+      <div class="header__toggle-btn"><i class="fas fa-bars"></i></div>
     </header>
+    <!-- Side Bar -->
+    <aside class="sidebar">
+      <h3>Sidebar</h3>
+      <p>this is the sidebar</p>
+      <ul>
+        <li><a href="statistics.html">statistics</a></li>
+        <li><a href="calender.html">calender</a></li>
+        <li>goal</li>
+      </ul>
+    </aside>
     <!-- Main -->
     <section class="main">
       <section class="state">
@@ -60,6 +77,9 @@
         </div>
         <div>
           <canvas id="test2" class="test-chart"></canvas>
+        </div>
+        <div>
+          <canvas id="test3" class="test-chart"></canvas>
         </div>
       </section>
     </section>
