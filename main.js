@@ -345,9 +345,9 @@ chartDelBtn.addEventListener('click', destroyChart);
 
 function getChart() {
   showPopUp(chartContainer, 'pop-up__chart--show');
-  // getDoughnutChart();
-  // getPolarAreaChart();
-  getTimetableChart();
+  getDoughnutChart();
+  getPolarAreaChart();
+  // getTimetableChart();
 }
 
 function getDoughnutChart() {
@@ -571,9 +571,9 @@ function getTimetableChart() {
 }
 
 function destroyChart() {
-  myTimetableChart.destroy();
-  // myDoughnutChart.destroy();
-  // myPolarAreaChart.destroy();
+  // myTimetableChart.destroy();
+  myDoughnutChart.destroy();
+  myPolarAreaChart.destroy();
   hidePopUp(chartContainer, 'pop-up__chart--show');
 }
 
@@ -655,14 +655,11 @@ function getPastTimeLog() {
 // Side bar toggle buttton
 const toggleSidebarButton = document.querySelector('.header__toggle-btn');
 const sidebar = document.querySelector('.sidebar');
+const sidebarCloseBtn = document.querySelector('.sidebar__closeBtn');
 
 toggleSidebarButton.addEventListener('click', () => {
   sidebar.classList.toggle('active');
-  // if (sidebar.style.display === 'none') {
-  //   sidebar.style.display = 'block';
-  //   sidebar.classList.add('active');
-  // } else {
-  //   sidebar.style.display = 'none';
-  //   sidebar.classList.remove('active');
-  // }
+});
+sidebarCloseBtn.addEventListener('click', () => {
+  sidebar.classList.remove('active');
 });

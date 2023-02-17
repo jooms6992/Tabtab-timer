@@ -100,7 +100,11 @@ body {
 }
 
 .sidebar__item {
-  margin: 8px 0;
+  margin: 18px 0;
+}
+
+.sidebar__item.active {
+  border: 2px solid black;
 }
 
 /* Main */
